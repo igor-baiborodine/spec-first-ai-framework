@@ -57,9 +57,8 @@ unrelated edits and older artifacts. Do not force a clean tree to make a check p
 
 ## Source delivery boundary
 
-This source stage defines guidance, catalogs and examples. Portable implementations of snapshot,
-review identity, source/integrity/freshness/composition, Markdown tooling and the framework Make
-interface are delivered in the helper step. Their absence is blocked executable validation, not
-a successful check. No copied consumer toolchain path is a framework runtime dependency.
-The accepted initial helper runtime/tool pins belong in framework-owned setup and lockfiles when
-those are implemented; guidance loading itself requires no Python, JVM or Go runtime.
+Portable implementations of snapshot, review identity, source/integrity/freshness/composition,
+Markdown tooling and the framework Make interface are documented in the
+[helper reference](../docs/helpers.md) and [contributor guide](../CONTRIBUTING.md). Runtime/tool pins
+belong to framework-owned setup and lockfiles; guidance loading itself requires no Python, JVM
+or Go runtime. Missing prerequisites still block executable validation; checks never install them.

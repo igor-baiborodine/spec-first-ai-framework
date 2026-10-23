@@ -1,0 +1,42 @@
+.DEFAULT_GOAL := help
+FRAMEWORK_ROOT := $(patsubst %/,%,$(dir $(abspath $(lastword $(MAKEFILE_LIST)))))
+PYTHON ?= $(FRAMEWORK_ROOT)/.venv/bin/python
+UV ?= uv
+PYTHON_ENV = $(abspath $(dir $(PYTHON))/..)
+PYTHON_FILES ?= tools tests examples/python-testing
+MARKDOWN_FILES ?=
+export PYTHONDONTWRITEBYTECODE := 1
+export RUFF_NO_CACHE := true
+
+.PHONY: help setup markdown-setup runtime-check development-check format format-check lint test-collect test-fast test-integration check source-check markdown-format markdown-check
+help: ## Show supported interfaces without setup or mutation
+	@printf '%s\n' 'setup: explicitly provision locked CPython development environment (network/cache writes)' 'markdown-setup: explicitly provision locked doctoc (network/node_modules writes)' 'check test-collect: source, Python format/lint and disposable tests' 'format: selected Python mutation; override PYTHON_FILES for narrow scope' 'markdown-format / markdown-check: require explicit MARKDOWN_FILES selection' 'PYTHON overrides must identify CPython 3.14.8; checks never install'
+setup: ## Explicitly provision the pinned environment and dependencies
+	@cd "$(FRAMEWORK_ROOT)" && "$(UV)" sync --locked --python 3.14.8
+markdown-setup: ## Explicitly provision doctoc from package-lock.json
+	@cd "$(FRAMEWORK_ROOT)" && npm ci --ignore-scripts --no-audit --no-fund
+runtime-check: ## Verify the selected runtime without installation
+	@"$(FRAMEWORK_ROOT)/scripts/runtime_check.sh" "$(PYTHON)"
+development-check: runtime-check ## Verify locked development-package identities without installation
+	@"$(PYTHON)" "$(FRAMEWORK_ROOT)/tools/runtime_check.py" --development
+	@cd "$(FRAMEWORK_ROOT)" && UV_PROJECT_ENVIRONMENT="$(PYTHON_ENV)" "$(UV)" sync --locked --check --offline --python "$(PYTHON)"
+format: development-check ## Format only selected handwritten Python
+	@cd "$(FRAMEWORK_ROOT)" && "$(PYTHON)" -m ruff format $(PYTHON_FILES)
+format-check: development-check ## Non-mutating Python format check
+	@cd "$(FRAMEWORK_ROOT)" && "$(PYTHON)" -m ruff format --check $(PYTHON_FILES)
+lint: development-check ## Non-mutating selected Python lint
+	@cd "$(FRAMEWORK_ROOT)" && "$(PYTHON)" -m ruff check $(PYTHON_FILES)
+test-collect: development-check ## No-path discovery excludes full acceptance
+	@cd "$(FRAMEWORK_ROOT)" && "$(PYTHON)" -m pytest --collect-only -q
+	@cd "$(FRAMEWORK_ROOT)" && "$(PYTHON)" -m pytest --collect-only -q examples/python-testing/integration
+test-fast: development-check ## Pure/fake-boundary and preserved Python example tests
+	@cd "$(FRAMEWORK_ROOT)" && "$(PYTHON)" -m pytest -q -m 'not integration and not acceptance' tests examples/python-testing/tests
+test-integration: development-check ## Actual disposable Git, subprocess and example integration tests
+	@cd "$(FRAMEWORK_ROOT)" && PYTHON_EXAMPLE_INTEGRATION=1 "$(PYTHON)" -m pytest -q -m integration tests examples/python-testing/integration
+source-check: development-check ## YAML metadata, catalog, link and adapter validation
+	@"$(PYTHON)" -B "$(FRAMEWORK_ROOT)/tools/framework_check.py" source --framework-root "$(FRAMEWORK_ROOT)"
+markdown-format: runtime-check ## Format explicit Markdown files through owned doctoc
+	@cd "$(FRAMEWORK_ROOT)" && "$(FRAMEWORK_ROOT)/scripts/markdown.sh" format $(MARKDOWN_FILES)
+markdown-check: runtime-check ## Check explicit Markdown files using disposable copies
+	@cd "$(FRAMEWORK_ROOT)" && "$(FRAMEWORK_ROOT)/scripts/markdown.sh" check $(MARKDOWN_FILES)
+check: format-check lint test-fast test-integration source-check ## Local development gate; no final client/adoption claim

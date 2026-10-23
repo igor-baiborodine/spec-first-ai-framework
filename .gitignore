@@ -85,3 +85,12 @@ fabric.properties
 
 !.idea/codeStyles
 !.idea/runConfigurations
+
+### Framework-owned disposable development outputs ###
+.venv/
+.tools/
+__pycache__/
+*.pyc
+.pytest_cache/
+.ruff_cache/
+node_modules/

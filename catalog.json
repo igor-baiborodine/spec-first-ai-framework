@@ -20,20 +20,20 @@
       "rules/repo-rules.md"
     ],
     "go": [
-      "rules/go-rules.md",
-      "rules/go-development.md",
-      "rules/go-formatting.md",
-      "rules/go-validation.md",
-      "rules/go-architecture.md",
-      "rules/go-api-transport.md",
-      "rules/go-test.md"
+      "rules/go/README.md",
+      "rules/go/development.md",
+      "rules/go/formatting.md",
+      "rules/go/validation.md",
+      "rules/go/architecture.md",
+      "rules/go/api-transport.md",
+      "rules/go/test.md"
     ],
     "python": [
-      "rules/python-rules.md",
-      "rules/python-development.md",
-      "rules/python-test.md",
-      "rules/python-formatting.md",
-      "rules/python-validation.md"
+      "rules/python/README.md",
+      "rules/python/development.md",
+      "rules/python/test.md",
+      "rules/python/formatting.md",
+      "rules/python/validation.md"
     ],
     "house": [
       "rules/house.md",
@@ -48,35 +48,35 @@
   "routes": {
     "go": {
       "implementation": [
-        "rules/go-rules.md",
-        "rules/go-development.md",
-        "rules/go-formatting.md",
-        "rules/go-validation.md"
+        "rules/go/README.md",
+        "rules/go/development.md",
+        "rules/go/formatting.md",
+        "rules/go/validation.md"
       ],
       "architecture": [
-        "rules/go-architecture.md"
+        "rules/go/architecture.md"
       ],
       "api": [
-        "rules/go-api-transport.md"
+        "rules/go/api-transport.md"
       ],
       "test": [
-        "rules/go-test.md"
+        "rules/go/test.md"
       ]
     },
     "python": {
       "implementation": [
-        "rules/python-rules.md",
-        "rules/python-development.md",
-        "rules/python-test.md",
-        "rules/python-formatting.md",
-        "rules/python-validation.md"
+        "rules/python/README.md",
+        "rules/python/development.md",
+        "rules/python/test.md",
+        "rules/python/formatting.md",
+        "rules/python/validation.md"
       ],
       "test": [
-        "rules/python-rules.md",
-        "rules/python-development.md",
-        "rules/python-test.md",
-        "rules/python-formatting.md",
-        "rules/python-validation.md"
+        "rules/python/README.md",
+        "rules/python/development.md",
+        "rules/python/test.md",
+        "rules/python/formatting.md",
+        "rules/python/validation.md"
       ]
     }
   },

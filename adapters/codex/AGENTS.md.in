@@ -1,0 +1,3 @@
+Read ai/profile.json, then {{framework_path}}/consumer.md explicitly from this
+consumer root. The shared contributor AGENTS.md is not the consumer entry.
+Preserve this repository's local guide and resolve apparent conflicts before work.

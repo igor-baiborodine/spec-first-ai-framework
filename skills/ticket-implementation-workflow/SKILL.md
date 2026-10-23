@@ -75,7 +75,7 @@ Check for:
   failure, and compatibility examples, the affected boundary, and a proposed runnable check or
   justified manual scenario; bug reproduction and migration baseline provenance when applicable
 
-For Python work, load [the Python entry point](../../rules/python-rules.md) and all four
+For Python work, load [the Python entry point](../../rules/python/README.md) and all four
 linked rules. Establish why Python fits better than a simple shell workflow, identify the script
 owner and Make interface, and define target selection, mutation boundaries, rerun/recovery
 behavior, and secret handling where applicable. Do not turn a tooling request into a Python
@@ -133,7 +133,7 @@ Do not invent detailed implementation steps that depend on an unknown decision o
 
 For Python tooling, distinguish pure logic/fake-adapter tests, disposable integration tests, and
 any separately authorized live operations. Select checks through
-[Python validation](../../rules/python-validation.md); record missing targets or prerequisites
+[Python validation](../../rules/python/validation.md); record missing targets or prerequisites
 without treating them as successful validation.
 
 ### 3. Implement Step By Step

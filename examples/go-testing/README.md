@@ -17,8 +17,8 @@ specification. Each example states the production API it assumes. Replace the il
 Do not implement a new business rule just to make an example applicable. No generated mock or
 production implementation is supplied, and the snippets have not been compiled or runtime-tested.
 
-Use the [Go entry point](../../rules/go-rules.md) to select rules for the changed boundary;
-these examples specifically require [Go testing](../../rules/go-test.md).
+Use the [Go entry point](../../rules/go/README.md) to select rules for the changed boundary;
+these examples specifically require [Go testing](../../rules/go/test.md).
 Use the module's pinned Go and library versions; verify API compatibility before adaptation.
 
 ## Choose the test boundary

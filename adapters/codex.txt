@@ -1,0 +1,4 @@
+Consumer AGENTS.md: read ai/profile.json and FRAMEWORK_PATH/consumer.md explicitly.
+From nested directories first resolve consumer checkout root; do not reinterpret relative paths.
+For each catalog skill create .agents/skills/NAME/SKILL.md with name/description and an explicit
+instruction to read FRAMEWORK_PATH/skills/NAME/SKILL.md from the consumer root. Do not copy bodies.

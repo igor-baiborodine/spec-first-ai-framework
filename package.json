@@ -1,0 +1,8 @@
+{
+  "name": "spec-first-ai-framework-markdown",
+  "version": "0.1.0",
+  "private": true,
+  "license": "MIT",
+  "description": "Explicitly provisioned framework Markdown tooling; tested with Node 24.13.0",
+  "devDependencies": {"doctoc": "2.5.0"}
+}

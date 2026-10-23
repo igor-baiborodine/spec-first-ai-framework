@@ -6,6 +6,7 @@
   - [Source inventory](#source-inventory)
   - [Concrete authority comparison](#concrete-authority-comparison)
   - [Deferred validation ownership](#deferred-validation-ownership)
+  - [Portable helper extraction and license](#portable-helper-extraction-and-license)
 
 <!-- END doctoc generated TOC please keep comment here to allow auto update -->
 
@@ -30,9 +31,9 @@ until their separately validated cutover; this new tree does not relocate their 
 | `ai/checks/agent-security-scenarios.md` | [checks/agent-security-scenarios.md](../checks/agent-security-scenarios.md) | Adapted source; local facts/bindings separated |
 | `ai/checks/before-coding.md` | [checks/before-coding.md](../checks/before-coding.md) | Adapted source; local facts/bindings separated |
 | `ai/checks/before-merge.md` | [checks/before-merge.md](../checks/before-merge.md) | Adapted source; local facts/bindings separated |
-| `ai/checks/check_ai_framework.py` | Consumer-owned / later step | Portable helper/test owner deferred to Step 10; blocked executable capability, no pass claimed |
+| `ai/checks/check_ai_framework.py` | [tools/source_check.py](../tools/source_check.py); consumer-local gate retained | Portable helper/test owner supplied by Step 10; see helper extraction below |
 | `ai/checks/client-compatibility-scenarios.md` | [checks/client-compatibility-scenarios.md](../checks/client-compatibility-scenarios.md) | Adapted source; local facts/bindings separated |
-| `ai/checks/test_check_ai_framework.py` | Consumer-owned / later step | Portable helper/test owner deferred to Step 10; blocked executable capability, no pass claimed |
+| `ai/checks/test_check_ai_framework.py` | [tests/test_portable_delivery.py](../tests/test_portable_delivery.py); consumer fixtures retained | Portable helper/test owner supplied by Step 10; see helper extraction below |
 | `ai/client-compatibility.md` | [checks/client-compatibility.md](../checks/client-compatibility.md) | Historical matrix remains consumer-owned; final four-cell evidence required |
 | `ai/examples/README.md` | [examples/README.md](../examples/README.md) | Adapted source; local facts/bindings separated |
 | `ai/examples/go-testing/README.md` | [examples/go-testing/README.md](../examples/go-testing/README.md) | Adapted source; local facts/bindings separated |
@@ -42,49 +43,49 @@ until their separately validated cutover; this new tree does not relocate their 
 | `ai/examples/go-testing/sql-adapter-tests.md` | [examples/go-testing/sql-adapter-tests.md](../examples/go-testing/sql-adapter-tests.md) | Adapted source; local facts/bindings separated |
 | `ai/examples/go-testing/unit-tests.md` | [examples/go-testing/unit-tests.md](../examples/go-testing/unit-tests.md) | Adapted source; local facts/bindings separated |
 | `ai/examples/python-testing/README.md` | [examples/python-testing/README.md](../examples/python-testing/README.md) | Adapted source; local facts/bindings separated |
-| `ai/examples/python-testing/example_cli.py` | [examples/python-testing/example_cli.py](../examples/python-testing/example_cli.py) | Unchanged executable example; Step 10 owns wiring and execution gates |
-| `ai/examples/python-testing/integration/test_disposable_cli.py` | [examples/python-testing/integration/test_disposable_cli.py](../examples/python-testing/integration/test_disposable_cli.py) | Unchanged executable example; Step 10 owns wiring and execution gates |
-| `ai/examples/python-testing/tests/conftest.py` | [examples/python-testing/tests/conftest.py](../examples/python-testing/tests/conftest.py) | Unchanged executable example; Step 10 owns wiring and execution gates |
-| `ai/examples/python-testing/tests/test_example_cli.py` | [examples/python-testing/tests/test_example_cli.py](../examples/python-testing/tests/test_example_cli.py) | Unchanged executable example; Step 10 owns wiring and execution gates |
+| `ai/examples/python-testing/example_cli.py` | [examples/python-testing/example_cli.py](../examples/python-testing/example_cli.py) | Unchanged executable example; framework Make fast/integration targets own execution |
+| `ai/examples/python-testing/integration/test_disposable_cli.py` | [examples/python-testing/integration/test_disposable_cli.py](../examples/python-testing/integration/test_disposable_cli.py) | Unchanged executable example; framework Make fast/integration targets own execution |
+| `ai/examples/python-testing/tests/conftest.py` | [examples/python-testing/tests/conftest.py](../examples/python-testing/tests/conftest.py) | Unchanged executable example; framework Make fast/integration targets own execution |
+| `ai/examples/python-testing/tests/test_example_cli.py` | [examples/python-testing/tests/test_example_cli.py](../examples/python-testing/tests/test_example_cli.py) | Unchanged executable example; framework Make fast/integration targets own execution |
 | `ai/manifest.md` | [consumer.md](../consumer.md) | Split into exported composition, catalog and contributor guide |
 | `ai/prompts/README.md` | [prompts/README.md](../prompts/README.md) | Adapted source; local facts/bindings separated |
 | `ai/prompts/session-bootstrap.md` | [prompts/session-bootstrap.md](../prompts/session-bootstrap.md) | Adapted source; local facts/bindings separated |
 | `ai/rules/agent-security-rules.md` | [rules/agent-security-rules.md](../rules/agent-security-rules.md) | Adapted source; local facts/bindings separated |
 | `ai/rules/git-rules.md` | [rules/git-rules.md](../rules/git-rules.md) | Adapted source; local facts/bindings separated |
-| `ai/rules/go-api-transport.md` | [rules/go-api-transport.md](../rules/go-api-transport.md) | Adapted source; local facts/bindings separated |
-| `ai/rules/go-architecture.md` | [rules/go-architecture.md](../rules/go-architecture.md) | Adapted source; local facts/bindings separated |
-| `ai/rules/go-development.md` | [rules/go-development.md](../rules/go-development.md) | Adapted source; local facts/bindings separated |
-| `ai/rules/go-formatting.md` | [rules/go-formatting.md](../rules/go-formatting.md) | Adapted source; local facts/bindings separated |
-| `ai/rules/go-rules.md` | [rules/go-rules.md](../rules/go-rules.md) | Adapted source; local facts/bindings separated |
-| `ai/rules/go-test.md` | [rules/go-test.md](../rules/go-test.md) | Adapted source; local facts/bindings separated |
-| `ai/rules/go-validation.md` | [rules/go-validation.md](../rules/go-validation.md) | Adapted source; local facts/bindings separated |
+| `ai/rules/go-api-transport.md` | [rules/go/api-transport.md](../rules/go/api-transport.md) | Adapted source; local facts/bindings separated |
+| `ai/rules/go-architecture.md` | [rules/go/architecture.md](../rules/go/architecture.md) | Adapted source; local facts/bindings separated |
+| `ai/rules/go-development.md` | [rules/go/development.md](../rules/go/development.md) | Adapted source; local facts/bindings separated |
+| `ai/rules/go-formatting.md` | [rules/go/formatting.md](../rules/go/formatting.md) | Adapted source; local facts/bindings separated |
+| `ai/rules/go-rules.md` | [rules/go/README.md](../rules/go/README.md) | Adapted source; local facts/bindings separated |
+| `ai/rules/go-test.md` | [rules/go/test.md](../rules/go/test.md) | Adapted source; local facts/bindings separated |
+| `ai/rules/go-validation.md` | [rules/go/validation.md](../rules/go/validation.md) | Adapted source; local facts/bindings separated |
 | `ai/rules/infrastructure-rules.md` | [rules/operations.md](../rules/operations.md) | Shared safeguards only; concrete check index/runbooks stay consumer-owned |
 | `ai/rules/java-rules.md` | Consumer-owned / later step | Consumer retains legacy rule; full seven-area shared Java and provenance in Step 11 |
 | `ai/rules/makefile-rules.md` | [rules/makefile-rules.md](../rules/makefile-rules.md) | Adapted source; local facts/bindings separated |
 | `ai/rules/naming-rules.md` | [rules/naming-rules.md](../rules/naming-rules.md) | Adapted source; local facts/bindings separated |
-| `ai/rules/python-development.md` | [rules/python-development.md](../rules/python-development.md) | Adapted source; local facts/bindings separated |
-| `ai/rules/python-formatting.md` | [rules/python-formatting.md](../rules/python-formatting.md) | Adapted source; local facts/bindings separated |
-| `ai/rules/python-rules.md` | [rules/python-rules.md](../rules/python-rules.md) | Adapted source; local facts/bindings separated |
-| `ai/rules/python-test.md` | [rules/python-test.md](../rules/python-test.md) | Adapted source; local facts/bindings separated |
-| `ai/rules/python-validation.md` | [rules/python-validation.md](../rules/python-validation.md) | Adapted source; local facts/bindings separated |
+| `ai/rules/python-development.md` | [rules/python/development.md](../rules/python/development.md) | Adapted source; local facts/bindings separated |
+| `ai/rules/python-formatting.md` | [rules/python/formatting.md](../rules/python/formatting.md) | Adapted source; local facts/bindings separated |
+| `ai/rules/python-rules.md` | [rules/python/README.md](../rules/python/README.md) | Adapted source; local facts/bindings separated |
+| `ai/rules/python-test.md` | [rules/python/test.md](../rules/python/test.md) | Adapted source; local facts/bindings separated |
+| `ai/rules/python-validation.md` | [rules/python/validation.md](../rules/python/validation.md) | Adapted source; local facts/bindings separated |
 | `ai/rules/repo-rules.md` | [rules/repo-rules.md](../rules/repo-rules.md) | Adapted source; local facts/bindings separated |
 | `ai/rules/safety-rules.md` | [rules/safety-rules.md](../rules/safety-rules.md) | Adapted source; local facts/bindings separated |
 | `ai/rules/spec-first-rules.md` | [rules/spec-first-rules.md](../rules/spec-first-rules.md) | Adapted source; local facts/bindings separated |
 | `ai/skills/code-review/SKILL.md` | [skills/code-review/SKILL.md](../skills/code-review/SKILL.md) | Adapted source; local facts/bindings separated |
 | `ai/skills/code-review/references/github-review.md` | [skills/code-review/references/github-review.md](../skills/code-review/references/github-review.md) | Adapted source; local facts/bindings separated |
 | `ai/skills/code-review/references/local-review.md` | [skills/code-review/references/local-review.md](../skills/code-review/references/local-review.md) | Adapted source; local facts/bindings separated |
-| `ai/skills/code-review/scripts/check-upstream-sync.sh` | Consumer-owned / later step | Portable helper/test owner deferred to Step 10; blocked executable capability, no pass claimed |
-| `ai/skills/code-review/scripts/check_upstream_sync.py` | Consumer-owned / later step | Portable helper/test owner deferred to Step 10; blocked executable capability, no pass claimed |
-| `ai/skills/code-review/scripts/test_check_upstream_sync.py` | Consumer-owned / later step | Portable helper/test owner deferred to Step 10; blocked executable capability, no pass claimed |
-| `ai/skills/code-review/scripts/test_verify_published_pr.sh` | Consumer-owned / later step | Portable helper/test owner deferred to Step 10; blocked executable capability, no pass claimed |
-| `ai/skills/code-review/scripts/verify_published_pr.sh` | Consumer-owned / later step | Portable helper/test owner deferred to Step 10; blocked executable capability, no pass claimed |
+| `ai/skills/code-review/scripts/check-upstream-sync.sh` | [scripts/check_upstream_sync.sh](../scripts/check_upstream_sync.sh) | Portable helper/test owner supplied by Step 10; see helper extraction below |
+| `ai/skills/code-review/scripts/check_upstream_sync.py` | [tools/check_upstream_sync.py](../tools/check_upstream_sync.py) | Portable helper/test owner supplied by Step 10; see helper extraction below |
+| `ai/skills/code-review/scripts/test_check_upstream_sync.py` | [tests/test_check_upstream_sync.py](../tests/test_check_upstream_sync.py) | Portable helper/test owner supplied by Step 10; see helper extraction below |
+| `ai/skills/code-review/scripts/test_verify_published_pr.sh` | [tests/test_verify_published_pr.sh](../tests/test_verify_published_pr.sh) | Portable helper/test owner supplied by Step 10; see helper extraction below |
+| `ai/skills/code-review/scripts/verify_published_pr.sh` | [scripts/verify_published_pr.sh](../scripts/verify_published_pr.sh) | Portable helper/test owner supplied by Step 10; see helper extraction below |
 | `ai/skills/pr-description/SKILL.md` | [skills/pr-description/SKILL.md](../skills/pr-description/SKILL.md) | Adapted source; local facts/bindings separated |
 | `ai/skills/pr-description/references/github-drafting.md` | [skills/pr-description/references/github-drafting.md](../skills/pr-description/references/github-drafting.md) | Adapted source; local facts/bindings separated |
 | `ai/skills/pr-description/references/local-drafting.md` | [skills/pr-description/references/local-drafting.md](../skills/pr-description/references/local-drafting.md) | Adapted source; local facts/bindings separated |
 | `ai/skills/ticket-implementation-workflow/SKILL.md` | [skills/ticket-implementation-workflow/SKILL.md](../skills/ticket-implementation-workflow/SKILL.md) | Adapted source; local facts/bindings separated |
 | `ai/skills/ticket-post-step-workflow/SKILL.md` | [skills/ticket-post-step-workflow/SKILL.md](../skills/ticket-post-step-workflow/SKILL.md) | Adapted source; local facts/bindings separated |
-| `ai/skills/ticket-post-step-workflow/scripts/refresh_git_diff.sh` | Consumer-owned / later step | Portable helper/test owner deferred to Step 10; blocked executable capability, no pass claimed |
-| `ai/skills/ticket-post-step-workflow/scripts/test_refresh_git_diff.sh` | Consumer-owned / later step | Portable helper/test owner deferred to Step 10; blocked executable capability, no pass claimed |
+| `ai/skills/ticket-post-step-workflow/scripts/refresh_git_diff.sh` | [scripts/refresh_git_diff.sh](../scripts/refresh_git_diff.sh) | Portable helper/test owner supplied by Step 10; see helper extraction below |
+| `ai/skills/ticket-post-step-workflow/scripts/test_refresh_git_diff.sh` | [tests/test_refresh_git_diff.sh](../tests/test_refresh_git_diff.sh) | Portable helper/test owner supplied by Step 10; see helper extraction below |
 | `ai/skills/ticket-requirements-workflow/SKILL.md` | [skills/ticket-requirements-workflow/SKILL.md](../skills/ticket-requirements-workflow/SKILL.md) | Adapted source; local facts/bindings separated |
 | `ai/skills/ticket-specification-workflow/SKILL.md` | [skills/ticket-specification-workflow/SKILL.md](../skills/ticket-specification-workflow/SKILL.md) | Adapted source; local facts/bindings separated |
 | `ai/templates/delivery-steps-template.md` | [templates/delivery-steps-template.md](../templates/delivery-steps-template.md) | Adapted source; local facts/bindings separated |
@@ -121,12 +122,32 @@ layout migration. Formatting/test naming are selected house conventions. Python 
 process/CLI/resource/security and verification IDs while runtime/build owners become local. Java
 style remains a separate selection, preserving the legacy consumer's exclusion. Supplied Go
 snippets retain fictional policy contracts and historical source provenance; they are not compiled
-or runtime evidence. Python example source is byte-preserved; new executable checks await Step 10.
+or runtime evidence. Python example source is byte-preserved; framework Make targets now own its executable checks.
 
 ## Deferred validation ownership
 
 Step 10 supplies independent source-check, runtime/lock, snapshot/review/dependency helpers, adapters,
 Markdown commands and test ownership. Step 11 supplies full Java coverage/provenance and final
 release-candidate validation. Consumer adoption later validates actual application/client behavior
-and same-revision upstream equality. Static metadata/link/routing review at this step cannot certify
-any of those future executions. Independent human authority review remains a Step 9 acceptance gate.
+and same-revision upstream equality. Static metadata/link/routing review cannot certify final client/application behavior. The
+Step 9 authority-policy comparison was accepted by the maintainer; subsequent substantive
+authority changes retain the independent review requirement.
+
+## Portable helper extraction and license
+
+The helper delivery extends this inventory using the Step 3 prototype commit
+`1a119529e5c3bb111d00966b5a0b6a714196ed7b` (48 original regression cases) and the original
+Insurance Hub snapshot/branch-sync/published-revision helpers and fixtures at the trusted baseline.
+`tools/framework_check.py` and `framework_runtime.py` retain the prototype dependency checks;
+`source_check.py` adds YAML/catalog/link/adapter validation. `git_helpers.py` and
+`check_upstream_sync.py` preserve the original helper scenarios with portable launchers and
+bounded process groups. Tests retain those scenarios, explicitly adapting artifact outputs to
+the declared consumer boundary. Markdown mechanics use owned locked doctoc; no legacy consumer
+caller is changed by this shared-source delivery. Evidence identity is an additive versioned
+interface that preserves older records and refuses to certify incomplete/stale identities.
+
+The maintainer selected [MIT](../LICENSE). Copyright holder Igor Baiborodine matches the source
+repository histories; the framework source and owned adaptations use that license. Runtime packages
+and doctoc's transitive packages retain their own distribution licenses; they are installed from
+locks, not vendored or relicensed here. No separate third-party source notice was identified in the
+extracted helper/example bodies. Full Java derivation and its notice review remain the Java step.

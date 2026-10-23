@@ -12,9 +12,9 @@
 # Python Testing Examples
 
 These executable examples show the repository's auxiliary Python conventions without defining an
-the consumer business contract. Read the canonical [development](../../rules/python-development.md),
-[testing](../../rules/python-test.md), [formatting](../../rules/python-formatting.md), and
-[validation](../../rules/python-validation.md) rules before adapting them.
+the consumer business contract. Read the canonical [development](../../rules/python/development.md),
+[testing](../../rules/python/test.md), [formatting](../../rules/python/formatting.md), and
+[validation](../../rules/python/validation.md) rules before adapting them.
 
 ## Example map
 
@@ -32,11 +32,12 @@ evidence. There are no syntax-only Python fragments in this example set.
 ## Run the examples
 
 The original executable example and its fast/disposable process tests are preserved unchanged.
-Framework-owned runtime/configuration/Make wiring is delivered in the helper step; no executable
-example pass is claimed at this source stage. Do not invoke an imaginary target or use another
-consumer's environment as an implicit dependency. Once provisioned, require separate static,
-no-path collection, fast and disposable integration owners; default collection excludes integration
-and acceptance. Preserve interruption, redaction and cleanup cases when wiring the owner.
+Use the framework-owned environment described in [CONTRIBUTING.md](../../CONTRIBUTING.md).
+`make test-fast` includes the example logic; `make test-integration` selects the real process
+examples with `PYTHON_EXAMPLE_INTEGRATION=1`. The flag is deliberately set only by the explicit
+integration target. `make test-collect` records default discovery and separate example integration
+discovery. Default discovery excludes this example integration directory and full acceptance.
+Formatting/lint and runtime checks have separate owners; no sibling environment is required.
 
 ## Scenario structure
 

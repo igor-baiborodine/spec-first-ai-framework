@@ -1,0 +1,77 @@
+{
+  "version": 1,
+  "consumer": "example-consumer",
+  "framework_path": "ai/framework",
+  "components": [
+    "core",
+    "go",
+    "house"
+  ],
+  "guides": [
+    "AGENTS.md",
+    "ai/consumer-profile.md"
+  ],
+  "tool_sources": [
+    "ai/framework/Makefile"
+  ],
+  "artifact_root": "ai/artifacts",
+  "issue_sync": "Consumer-owned numbered-issue synchronization; ad hoc work exempt",
+  "conflicts": "stop-and-report",
+  "commands": {
+    "markdown-format": {
+      "owner": "ai/framework/scripts/markdown.sh",
+      "cwd": ".",
+      "argv": [
+        "ai/framework/scripts/markdown.sh",
+        "format",
+        "README.md"
+      ],
+      "prerequisites": "Explicit CPython 3.14.8 via PYTHON or framework .venv; Git; pinned doctoc/Node additionally required for Markdown",
+      "effects": "writes selected consumer Markdown files and temporary process output",
+      "scope": "example README selection; replace with task-owned files"
+    },
+    "markdown-check": {
+      "owner": "ai/framework/scripts/markdown.sh",
+      "cwd": ".",
+      "argv": [
+        "ai/framework/scripts/markdown.sh",
+        "check",
+        "README.md"
+      ],
+      "prerequisites": "Explicit CPython 3.14.8 via PYTHON or framework .venv; Git; pinned doctoc/Node additionally required for Markdown",
+      "effects": "temporary copies/output only; no original-file writes",
+      "scope": "same explicit file selection as format"
+    },
+    "snapshot": {
+      "owner": "ai/framework/scripts/refresh_git_diff.sh",
+      "cwd": ".",
+      "argv": [
+        "ai/framework/scripts/refresh_git_diff.sh"
+      ],
+      "prerequisites": "Explicit CPython 3.14.8 via PYTHON or framework .venv; Git; pinned doctoc/Node additionally required for Markdown",
+      "effects": "atomic write to validated consumer artifact path",
+      "scope": "append explicit consumer root, base, head and output arguments"
+    },
+    "review-upstream": {
+      "owner": "ai/framework/scripts/check_upstream_sync.sh",
+      "cwd": ".",
+      "argv": [
+        "ai/framework/scripts/check_upstream_sync.sh",
+        "."
+      ],
+      "prerequisites": "Explicit CPython 3.14.8 via PYTHON or framework .venv; Git; pinned doctoc/Node additionally required for Markdown",
+      "effects": "network fetch and Git metadata/object writes",
+      "scope": "only explicitly requested strict branch sync"
+    },
+    "published-pr": {
+      "owner": "ai/framework/scripts/verify_published_pr.sh",
+      "cwd": ".",
+      "argv": [
+        "ai/framework/scripts/verify_published_pr.sh"
+      ],
+      "prerequisites": "Explicit CPython 3.14.8 via PYTHON or framework .venv; Git; pinned doctoc/Node additionally required for Markdown",
+      "effects": "network fetch and Git metadata/object writes",
+      "scope": "append verified remote/ref/full SHA triples and consumer root"
+    }
+  }
+}

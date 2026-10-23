@@ -21,9 +21,9 @@ of shared source. The consumer profile owns those bindings. Keep the catalog and
 consistent with actual files; no route may reference a missing component. Do not silently remove a
 safeguard to make portability easier. Preserve the existing README/ignore setup.
 
-The current delivery stage is guidance only. Shared executable tooling, locks and command owners
-are a subsequent step. Record unavailable source-check/runtime targets as blocked; do not invent
-passes or require an undeclared sibling checkout. For this extraction, task records stay in their
+Shared tooling, locks and command owners are documented in [CONTRIBUTING.md](CONTRIBUTING.md).
+Use the framework-owned Make targets and explicit setup; normal checks never install dependencies.
+Record unavailable prerequisites as blocked; do not invent passes or require a sibling checkout. For this extraction, task records stay in their
 already resolved consumer artifact home. Do not create or repair a local artifact exclusion here.
 
 Validate all changed Markdown with the explicitly provisioned doctoc 2.5.0 owner, format then

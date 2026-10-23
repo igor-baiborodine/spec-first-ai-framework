@@ -73,7 +73,7 @@ historical pass does not prove the reviewed state. Do not report an unrelated pr
 issue as a regression unless it directly blocks acceptance, and label it as pre-existing when it
 must be reported.
 
-For Python changes, load [the Python entry point](../../rules/python-rules.md) and all
+For Python changes, load [the Python entry point](../../rules/python/README.md) and all
 four linked rules. Check the language/ownership boundary, Make recipes and their side effects,
 target guards, subprocess and secret handling, cleanup, and recovery for the behavior changed.
 Assess permissions against the selected profile's contract, and distinguish fake-adapter or
