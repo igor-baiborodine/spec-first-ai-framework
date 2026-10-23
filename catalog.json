@@ -1,0 +1,116 @@
+{
+  "version": 1,
+  "skills": {
+    "code-review": "skills/code-review/SKILL.md",
+    "pr-description": "skills/pr-description/SKILL.md",
+    "ticket-implementation-workflow": "skills/ticket-implementation-workflow/SKILL.md",
+    "ticket-post-step-workflow": "skills/ticket-post-step-workflow/SKILL.md",
+    "ticket-requirements-workflow": "skills/ticket-requirements-workflow/SKILL.md",
+    "ticket-specification-workflow": "skills/ticket-specification-workflow/SKILL.md"
+  },
+  "components": {
+    "core": [
+      "consumer.md",
+      "rules/core.md",
+      "rules/evidence.md",
+      "rules/commands.md",
+      "rules/agent-security-rules.md",
+      "rules/spec-first-rules.md",
+      "rules/safety-rules.md",
+      "rules/repo-rules.md"
+    ],
+    "go": [
+      "rules/go/README.md",
+      "rules/go/development.md",
+      "rules/go/formatting.md",
+      "rules/go/validation.md",
+      "rules/go/architecture.md",
+      "rules/go/api-transport.md",
+      "rules/go/test.md"
+    ],
+    "python": [
+      "rules/python/README.md",
+      "rules/python/development.md",
+      "rules/python/test.md",
+      "rules/python/formatting.md",
+      "rules/python/validation.md"
+    ],
+    "house": [
+      "rules/house.md",
+      "rules/git-rules.md",
+      "rules/naming-rules.md",
+      "rules/makefile-rules.md"
+    ],
+    "operations": [
+      "rules/operations.md"
+    ],
+    "java": [
+      "rules/java/README.md",
+      "rules/java/development.md",
+      "rules/java/formatting.md",
+      "rules/java/validation.md",
+      "rules/java/architecture.md",
+      "rules/java/api-transport.md",
+      "rules/java/test.md"
+    ]
+  },
+  "routes": {
+    "go": {
+      "implementation": [
+        "rules/go/README.md",
+        "rules/go/development.md",
+        "rules/go/formatting.md",
+        "rules/go/validation.md"
+      ],
+      "architecture": [
+        "rules/go/architecture.md"
+      ],
+      "api": [
+        "rules/go/api-transport.md"
+      ],
+      "test": [
+        "rules/go/test.md"
+      ]
+    },
+    "python": {
+      "implementation": [
+        "rules/python/README.md",
+        "rules/python/development.md",
+        "rules/python/test.md",
+        "rules/python/formatting.md",
+        "rules/python/validation.md"
+      ],
+      "test": [
+        "rules/python/README.md",
+        "rules/python/development.md",
+        "rules/python/test.md",
+        "rules/python/formatting.md",
+        "rules/python/validation.md"
+      ]
+    },
+    "java": {
+      "implementation": [
+        "rules/java/README.md",
+        "rules/java/development.md",
+        "rules/java/formatting.md",
+        "rules/java/validation.md"
+      ],
+      "architecture": [
+        "rules/java/architecture.md"
+      ],
+      "api": [
+        "rules/java/api-transport.md"
+      ],
+      "test": [
+        "rules/java/test.md"
+      ]
+    }
+  },
+  "templates": {
+    "requirements": "templates/requirements-template.md",
+    "ticket-content": "templates/ticket-content-template.md",
+    "delivery-steps": "templates/delivery-steps-template.md",
+    "pr-review": "templates/pr-review-template.md",
+    "pr-description": "templates/pr-description-template.md"
+  }
+}

@@ -1,0 +1,62 @@
+---
+name: pr-description
+description: Draft or update consumer pull request descriptions from ticket requirements, the proposed change, and verified validation evidence. Use for local description artifacts and GitHub pull request bodies; do not use to create, review, merge, or close a pull request.
+---
+
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+
+- [Pull Request Description](#pull-request-description)
+  - [Shared description standard](#shared-description-standard)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
+# Pull Request Description
+
+Resolve framework-relative paths from `<framework-root>` and local paths from
+`<consumer-root>` using [consumer composition](../../consumer.md).
+The consumer root guide remains authoritative; this framework's contributor `AGENTS.md` is not consumer policy.
+
+
+Produce a reviewer-friendly description that explains the delivered outcome, the meaningful
+implementation changes, and the available validation evidence. Follow root `AGENTS.md`,
+`consumer.md`, applicable nested instructions and rules, and the precedence and conflict
+procedure they define.
+
+Choose the execution mode before gathering evidence:
+
+- For a local checkout that produces a ticket PR description artifact, resolve `<ticket-dir>`
+  through root `AGENTS.md` and follow [local drafting](references/local-drafting.md).
+- For a pull request hosted on GitHub, including a request to update its body, read and follow
+  [GitHub drafting and update](references/github-drafting.md).
+
+## Shared description standard
+
+Use `templates/pr-description-template.md` and retain its three top-level sections:
+
+1. **Summary**: state the business or operational issue, established cause when relevant, and
+   resulting behavior in one to three concise sentences.
+2. **Key Changes**: group concrete implementation details by meaningful change area. Include
+   rationale and material out-of-scope boundaries when they help a reviewer assess the change.
+3. **Testing Notes**: report every relevant executed, failed, blocked, unexecuted, or inapplicable
+   check using the validation-evidence meanings in
+   `skills/ticket-post-step-workflow/SKILL.md`.
+
+Describe only behavior, causes, endpoints, tests, commands, and results supported by the available
+ticket, repository, diff, or execution evidence. Label an inference or unknown. Plans and proposed
+commands are not results, and a CI result does not establish a local result or the reverse. Apply
+the [tested-state freshness rule](../ticket-post-step-workflow/SKILL.md#validation-evidence-record)
+before presenting a historical pass as evidence for the proposed code and specification; label
+stale or identity-incomplete results as unverified for that state.
+
+For API or contract changes, inspect authoritative schemas, controllers or handlers, gateway
+mappings, callers, and tests. State an HTTP method and path only when repository sources establish
+them. For a gRPC-only change, name the service and RPC without inventing an HTTP route.
+
+Include a compact compatibility table only when it makes a cross-cutting provider, module, or flow
+change easier to assess. Prefer outcomes and significant decisions over a file-by-file transcript
+or copied diff. Preserve placeholders for environment-specific values and never include secrets.
+
+Before finishing, compare the description with the shared template, requirements, actual proposed
+change, and available validation evidence. Do not create, review, merge, close, or otherwise modify
+a pull request except for an explicitly requested GitHub description update.

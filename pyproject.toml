@@ -1,0 +1,33 @@
+[project]
+name = "spec-first-ai-framework"
+version = "0.1.0"
+description = "Portable specification-first workflows and validation helpers"
+requires-python = "==3.14.8"
+license = "MIT"
+dependencies = []
+
+[dependency-groups]
+dev = ["pytest==9.1.1", "ruff==0.17.1", "pyyaml==6.0.3"]
+
+[tool.uv]
+package = false
+required-version = "==0.13.1"
+
+[tool.ruff]
+required-version = "==0.17.1"
+line-length = 100
+target-version = "py314"
+force-exclude = true
+extend-exclude = [".tools", ".venv", "node_modules", "tests/fixtures"]
+
+[tool.ruff.lint]
+select = ["E4", "E7", "E9", "F", "I", "UP", "B"]
+
+[tool.ruff.lint.isort]
+known-first-party = ["tools", "framework_check", "source_check", "check_upstream_sync", "example_cli"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests", "examples/python-testing/tests"]
+pythonpath = [".", "tools", "examples/python-testing"]
+addopts = ["--strict-config", "--strict-markers", "-p", "no:cacheprovider"]
+markers = ["integration: owned disposable Git/process boundary", "acceptance: separately requested full consumer acceptance"]

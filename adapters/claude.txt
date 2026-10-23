@@ -1,0 +1,3 @@
+Consumer CLAUDE.md imports @AGENTS.md; the consumer guide routes to ai/profile.json and
+FRAMEWORK_PATH/consumer.md. Each .claude/skills/NAME/SKILL.md has name/description and explicitly
+routes to FRAMEWORK_PATH/skills/NAME/SKILL.md from consumer root. Preserve existing local content.
