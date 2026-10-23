@@ -43,6 +43,15 @@
     ],
     "operations": [
       "rules/operations.md"
+    ],
+    "java": [
+      "rules/java/README.md",
+      "rules/java/development.md",
+      "rules/java/formatting.md",
+      "rules/java/validation.md",
+      "rules/java/architecture.md",
+      "rules/java/api-transport.md",
+      "rules/java/test.md"
     ]
   },
   "routes": {
@@ -77,6 +86,23 @@
         "rules/python/test.md",
         "rules/python/formatting.md",
         "rules/python/validation.md"
+      ]
+    },
+    "java": {
+      "implementation": [
+        "rules/java/README.md",
+        "rules/java/development.md",
+        "rules/java/formatting.md",
+        "rules/java/validation.md"
+      ],
+      "architecture": [
+        "rules/java/architecture.md"
+      ],
+      "api": [
+        "rules/java/api-transport.md"
+      ],
+      "test": [
+        "rules/java/test.md"
       ]
     }
   },

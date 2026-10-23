@@ -60,7 +60,7 @@ until their separately validated cutover; this new tree does not relocate their 
 | `ai/rules/go-test.md` | [rules/go/test.md](../rules/go/test.md) | Adapted source; local facts/bindings separated |
 | `ai/rules/go-validation.md` | [rules/go/validation.md](../rules/go/validation.md) | Adapted source; local facts/bindings separated |
 | `ai/rules/infrastructure-rules.md` | [rules/operations.md](../rules/operations.md) | Shared safeguards only; concrete check index/runbooks stay consumer-owned |
-| `ai/rules/java-rules.md` | Consumer-owned / later step | Consumer retains legacy rule; full seven-area shared Java and provenance in Step 11 |
+| `ai/rules/java-rules.md` | Consumer-owned; shared [Java family](../rules/java/README.md) derived separately | Consumer retains legacy rule/style; [Java inventory](java.md) records full seven-area derivation |
 | `ai/rules/makefile-rules.md` | [rules/makefile-rules.md](../rules/makefile-rules.md) | Adapted source; local facts/bindings separated |
 | `ai/rules/naming-rules.md` | [rules/naming-rules.md](../rules/naming-rules.md) | Adapted source; local facts/bindings separated |
 | `ai/rules/python-development.md` | [rules/python/development.md](../rules/python/development.md) | Adapted source; local facts/bindings separated |
@@ -127,8 +127,8 @@ or runtime evidence. Python example source is byte-preserved; framework Make tar
 ## Deferred validation ownership
 
 Step 10 supplies independent source-check, runtime/lock, snapshot/review/dependency helpers, adapters,
-Markdown commands and test ownership. Step 11 supplies full Java coverage/provenance and final
-release-candidate validation. Consumer adoption later validates actual application/client behavior
+Markdown commands and test ownership. [Java provenance](java.md) now supplies the complete seven-area derivation;
+[release provenance](framework.md) defines candidate validation and acceptance boundaries. Consumer adoption later validates actual application/client behavior
 and same-revision upstream equality. Static metadata/link/routing review cannot certify final client/application behavior. The
 Step 9 authority-policy comparison was accepted by the maintainer; subsequent substantive
 authority changes retain the independent review requirement.
@@ -150,4 +150,5 @@ The maintainer selected [MIT](../LICENSE). Copyright holder Igor Baiborodine mat
 repository histories; the framework source and owned adaptations use that license. Runtime packages
 and doctoc's transitive packages retain their own distribution licenses; they are installed from
 locks, not vendored or relicensed here. No separate third-party source notice was identified in the
-extracted helper/example bodies. Full Java derivation and its notice review remain the Java step.
+extracted helper/example bodies. The [Java rights review](java.md#rights-and-notices) records newly authored guidance and
+synthetic scenarios without copying application or external article/style implementations.

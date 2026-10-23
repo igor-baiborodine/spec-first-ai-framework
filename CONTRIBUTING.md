@@ -62,8 +62,9 @@ disabled by Make. Markdown check uses disposable copies; its originals remain by
 suite. Fast tests cover pure decisions/fakes and example logic. Integration tests create local
 Git repositories, synthetic commits and subprocesses in owned temporary directories; they
 never target a shared service. Fixtures clean themselves up. They include the prototype's
-48 cases plus extraction regressions. Java routing in those fixtures is synthetic until the
-Java delivery step. No client/application acceptance suite is implied by `make check`.
+48 cases plus extraction regressions. Java routing uses the complete delivered rule family;
+semantic review scenarios live in [Java examples](examples/java/README.md). Those scenarios are
+not executable Java application tests. No client/application acceptance suite is implied by `make check`.
 
 Make resolves this checkout from its own file: root `make`, `make -C /path/to/framework`, and
 nested `make -f /path/to/framework/Makefile` work. Recursive callers must use `$(MAKE)` and pass
@@ -90,6 +91,7 @@ Contributions are intended for distribution under the [MIT license](LICENSE). Co
 contribute the material under those terms and retain applicable upstream notices. Record copied
 or derived material in [extraction provenance](provenance/extraction.md); third-party tools keep
 their own licenses. The initial copyright holder is Igor Baiborodine, matching the source history
-and the maintainer's explicit MIT selection. Java-derived coverage is rechecked in its delivery
-step before release. Do not add a contributor agreement or certify third-party relicensing by
-inference. Publication, commits and pushes retain their separately authorized workflows.
+and the maintainer's explicit MIT selection. The [Java derivation](provenance/java.md) and
+[release provenance](provenance/framework.md) record coverage, additional safeguards, measured
+deviations and the rights/notice boundary. Do not add a contributor agreement or certify
+third-party relicensing by inference. Publication, commits and pushes retain their separately authorized workflows.

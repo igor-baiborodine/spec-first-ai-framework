@@ -4,6 +4,7 @@
 - [AI Examples](#ai-examples)
   - [Go testing examples](#go-testing-examples)
   - [Python testing examples](#python-testing-examples)
+  - [Java review scenarios](#java-review-scenarios)
 
 <!-- END doctoc generated TOC please keep comment here to allow auto update -->
 
@@ -32,3 +33,9 @@ Start with the [Go testing guide](go-testing/README.md), then load only the rele
 Start with the [Python testing guide](python-testing/README.md). Its executable CLI, fast pytest
 suite, and explicitly selected disposable integration suite demonstrate the canonical Python
 development, testing, formatting, and validation rules without defining business behavior.
+
+## Java review scenarios
+
+[Java scenarios](java/README.md) provide independent defect triggers and expected findings for
+failure/resource/state, transport, discovery and validation review. They are semantic review
+fixtures; consumer-owned Java runtime tests remain separate.

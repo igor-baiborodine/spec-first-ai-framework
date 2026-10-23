@@ -20,7 +20,7 @@ consumers own business behavior, topology, tool/runtime pins, commands, artifact
 - Framework contributors: [AGENTS.md](AGENTS.md) governs this checkout;
   [CONTRIBUTING.md](CONTRIBUTING.md) documents setup and validation.
 - Consumer integration: [consumer.md](consumer.md) defines roots, authority, artifacts and routing.
-- Language entry points: [Go](rules/go/README.md) and [Python](rules/python/README.md).
+- Language entry points: [Go](rules/go/README.md), [Java](rules/java/README.md) and [Python](rules/python/README.md).
   Each language folder contains its focused rules; shared rules remain directly under `rules/`.
 - Components and workflow paths: [catalog.json](catalog.json).
 - Source lineage and review boundaries: [extraction provenance](provenance/extraction.md).
@@ -29,12 +29,12 @@ consumers own business behavior, topology, tool/runtime pins, commands, artifact
 
 ## Current delivery boundary
 
-Shared guidance and portable helper tooling are delivered; final Java and adoption gates remain. It includes six canonical workflows,
-five templates, complete Go/Python rule families, selected Git/naming/Make house conventions,
-operational safeguards and reusable examples. Consumer adapter templates, portable helpers, runtime
-locks, source/integrity/freshness/composition gates and owned Markdown commands are available;
-see the [helper reference](docs/helpers.md). Actual consumer installation remains an adoption step. The seven-area Java profile/provenance is delivered in the Java step. Catalog
-selection of unavailable components must fail explicitly. No missing command is represented as a pass.
+Shared lifecycle, portable helpers and complete Go/Python/Java guidance are delivered as a local
+release candidate. Six canonical workflows, five templates, selectable house/operations rules,
+adapter templates, runtime locks and source/integrity/freshness/composition checks are included.
+See the [helper reference](docs/helpers.md), [Java provenance](provenance/java.md) and semantic
+[review scenarios](examples/java/README.md). Missing capabilities fail explicitly. Actual consumer
+adoption/client/application checks and an authorized immutable release remain separate gates.
 
 The existing Python example source is retained unchanged with its fast and disposable process
 tests. Framework-owned fast/integration commands execute these examples; they are not application
@@ -46,7 +46,9 @@ The selected consumer layout uses `ai/framework`, `ai/profile.json` and `ai/cons
 The gitlink is the immutable pin; `.gitmodules` owns source/path/explicit upstream branch. Both
 consumers must use the same unmodified revision. Preparation follows the pin; online freshness
 separately requires clean HEAD/pin/upstream equality. Updates and rollback are explicit and preserve
-unrelated work and historical artifacts. See [commands](rules/commands.md) for required semantics.
+unrelated work and historical artifacts. Follow [adoption](docs/adoption.md), [runtime ownership](docs/runtime.md),
+[client verification](docs/clients.md) and [upgrades/rollback](docs/upgrades.md).
+See [commands](rules/commands.md) for required semantics.
 
 Codex and Claude Code local-checkout surfaces need actual root/nested loading and stage trials.
 Hosted review remains an optional workflow mode, not additional client support. Consumer cutover
@@ -60,6 +62,7 @@ not copied into this source tree. Final helper checks, actual client/application
 upstream equality remain required before adoption. A local check does not authorize publication.
 
 The framework is licensed under [MIT](LICENSE), selected by the maintainer. Preserve applicable
-upstream notices and recheck Java provenance before release. Publication ownership, visibility and
-direct authorization remain separate release gates; upstream availability is not implied. No tracked runtime/cache/tool
-artifacts or consumer ticket data belong in this repository.
+upstream notices; [release provenance](provenance/framework.md) records the Java coverage/rights
+boundary. Publication ownership, visibility and direct authorization remain separate release gates;
+upstream availability is not implied. No tracked runtime/cache/tool artifacts or consumer ticket
+data belong in this repository.

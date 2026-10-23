@@ -81,15 +81,6 @@ def consumer(tmp_path):
             shutil.copytree(source, remote / name)
         else:
             shutil.copy2(source, remote / name)
-    # Synthetic Java component retains the original routing regression before Step 11 delivery.
-    catalog = json.loads((remote / "catalog.json").read_text())
-    java = ["rules/java/README.md", "rules/java/api-transport.md", "rules/java/test.md"]
-    (remote / "rules/java").mkdir()
-    for path in java:
-        (remote / path).write_text("# Synthetic Java routing fixture\n")
-    catalog["components"]["java"] = java
-    catalog["routes"]["java"] = {"implementation": java[:1], "api": java[1:2], "test": java[2:]}
-    (remote / "catalog.json").write_text(json.dumps(catalog))
     first = commit(remote, "fixture baseline")
     root = tmp_path / "consumer"
     initialize(root)

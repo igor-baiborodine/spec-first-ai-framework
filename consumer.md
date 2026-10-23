@@ -59,12 +59,14 @@ maintainer review accepts the concrete change.
 
 Read the consumer root guide and profile, this entry point and the `core` component in
 [catalog.json](catalog.json), then the selected workflow completely. Load only applicable domain
-rules and referenced resources. Select `go` or `python` by the changed language boundary, plus
+rules and referenced resources. Select `go`, `java` or `python` by the changed language boundary, plus
 architecture, API or test routes when affected. Load all selected `house` and `operations` paths;
 selection must not omit them. House conventions require explicit adoption; unselected house rules
-must not become universal language requirements. Go-only work must not load Java. Java selection
-is unavailable in this source stage until its complete rules/provenance are delivered; report that
-capability as blocked, never substitute Go or the historical minimal Java rule.
+must not become universal language requirements. Go-only work must not load Java. Java implementation loads its router, development, formatting
+and validation rules; add architecture,
+API and test routes when affected. Its [provenance](provenance/java.md) scopes house/stack choices
+and additional safeguards. Honor explicit Google/local style selection and the legacy consumer
+exclusion; do not substitute Go or the historical minimal Java rule.
 
 Keep six consumer-owned thin adapters per supported client: Codex `.agents/skills/<name>/SKILL.md`
 and Claude `.claude/skills/<name>/SKILL.md`, with root `AGENTS.md` and `CLAUDE.md` routing. These are

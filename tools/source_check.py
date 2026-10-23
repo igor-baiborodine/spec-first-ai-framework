@@ -86,6 +86,18 @@ def validate_catalog(root: Path) -> dict:
             for part in ("README", "development", "test", "formatting", "validation")
         },
     }
+    families["java"] = {
+        f"rules/java/{part}.md"
+        for part in (
+            "README",
+            "development",
+            "architecture",
+            "api-transport",
+            "test",
+            "formatting",
+            "validation",
+        )
+    }
     for name, expected in families.items():
         if set(components.get(name, [])) != expected:
             raise CheckError(f"incomplete {name} rule family")
@@ -121,6 +133,20 @@ def validate_catalog(root: Path) -> dict:
                 or not set(paths) <= set(components.get(language, []))
             ):
                 raise CheckError("route outside selected language component")
+    java_routes = {
+        "implementation": {
+            "rules/java/README.md",
+            "rules/java/development.md",
+            "rules/java/formatting.md",
+            "rules/java/validation.md",
+        },
+        "architecture": {"rules/java/architecture.md"},
+        "api": {"rules/java/api-transport.md"},
+        "test": {"rules/java/test.md"},
+    }
+    for boundary, expected in java_routes.items():
+        if set(routes.get("java", {}).get(boundary, [])) != expected:
+            raise CheckError(f"incomplete Java route: {boundary}")
     for group in ("skills", "templates"):
         for path in catalog[group].values():
             if not inside(root, path).is_file():

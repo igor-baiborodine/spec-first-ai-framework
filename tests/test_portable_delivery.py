@@ -355,3 +355,86 @@ def test_oversized_git_output_is_bounded_and_sanitized(tmp_path, monkeypatch):
     with pytest.raises(checker.CheckError, match="bounded output") as failure:
         checker.Git(3).run(tmp_path, "status")
     assert "synthetic-secret" not in str(failure.value)
+
+
+@pytest.mark.parametrize("defect", ["family", "implementation", "architecture", "api", "test"])
+def test_java_catalog_rejects_missing_required_coverage(source_copy, defect):
+    # given
+    path = source_copy / "catalog.json"
+    catalog = json.loads(path.read_text())
+    if defect == "family":
+        catalog["components"]["java"].remove("rules/java/development.md")
+    elif defect == "implementation":
+        catalog["routes"]["java"][defect].remove("rules/java/validation.md")
+    else:
+        del catalog["routes"]["java"][defect]
+    path.write_text(json.dumps(catalog))
+    # when / then
+    with pytest.raises(checker.CheckError, match="(Java route|java rule family)"):
+        checker.source_check(source_copy)
+
+
+@pytest.mark.integration
+@pytest.mark.parametrize("style", ["google", "local"])
+def test_real_java_routes_preserve_required_subsets_and_style(consumer, style):
+    # given
+    path = consumer["root"] / "ai/profile.json"
+    profile = json.loads(path.read_text())
+    profile["styles"] = {"java": style}
+    path.write_text(json.dumps(profile))
+    implementation = {
+        "rules/java/README.md",
+        "rules/java/development.md",
+        "rules/java/formatting.md",
+        "rules/java/validation.md",
+    }
+    # when
+    basic = invoke(consumer, "compose", "--language", "java")
+    combined = invoke(
+        consumer,
+        "compose",
+        "--language",
+        "java",
+        "--boundary",
+        "api",
+        "--boundary",
+        "test",
+        "--boundary",
+        "architecture",
+    )
+    # then
+    assert basic.returncode == combined.returncode == 0, basic.stderr + combined.stderr
+    basic_output = json.loads(basic.stdout)["composition"]
+    combined_output = json.loads(combined.stdout)["composition"]
+    assert {p for p in basic_output["read"] if p.startswith("rules/java/")} == implementation
+    assert {p for p in combined_output["read"] if p.startswith("rules/java/")} == implementation | {
+        "rules/java/api-transport.md",
+        "rules/java/test.md",
+        "rules/java/architecture.md",
+    }
+    assert combined_output["styles"] == {"java": style}
+    assert not any(p.startswith(("rules/go/", "rules/python/")) for p in combined_output["read"])
+    assert not combined_output["commands_executed"]
+
+
+@pytest.mark.integration
+def test_go_only_selection_does_not_remove_shared_java_support(consumer):
+    # given
+    path = consumer["root"] / "ai/profile.json"
+    profile = json.loads(path.read_text())
+    profile["components"] = ["core", "go"]
+    path.write_text(json.dumps(profile))
+    before = tree_manifest(consumer["dep"])
+    # when
+    go = invoke(consumer, "compose", "--language", "go")
+    rejected = invoke(consumer, "compose", "--language", "java")
+    java_profile = {**profile, "components": ["core", "java"], "styles": {"java": "google"}}
+    other = consumer["root"] / "ai/java-profile.json"
+    other.write_text(json.dumps(java_profile))
+    java = invoke(consumer, "compose", "--profile", "ai/java-profile.json", "--language", "java")
+    # then
+    assert go.returncode == java.returncode == 0
+    assert rejected.returncode == 1 and "not selected" in rejected.stderr
+    assert not any("java" in p for p in json.loads(go.stdout)["composition"]["read"])
+    assert "rules/java/development.md" in json.loads(java.stdout)["composition"]["read"]
+    assert tree_manifest(consumer["dep"]) == before
