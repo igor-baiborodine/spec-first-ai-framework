@@ -74,7 +74,7 @@ issue as a regression unless it directly blocks acceptance, and label it as pre-
 must be reported.
 
 For Python changes, load [the Python entry point](../../rules/python/README.md) and all
-four linked rules. Check the language/ownership boundary, Make recipes and their side effects,
+four linked rules. Check the language/ownership boundary, declared commands (Make recipes where selected) and their side effects,
 target guards, subprocess and secret handling, cleanup, and recovery for the behavior changed.
 Assess permissions against the selected profile's contract, and distinguish fake-adapter or
 disposable test results from live evidence. Apply the same review-only boundary; do not execute

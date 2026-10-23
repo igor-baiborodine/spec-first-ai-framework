@@ -33,9 +33,9 @@ test implementation becomes complicated.
   in this repository. A name such as `Testparse` is not discovered as a test.
 - Use an external `package foo_test` for public behavior when practical; use `package foo` when
   internal behavior is the intended boundary. Do not export production internals solely for tests.
-- Keep unit tests untagged unless the module requires otherwise. Follow the module's `integration`
-  build tag and owning Make target for integration tests; `_integration_test.go` alone does not
-  exclude a file from ordinary test runs. Store package-local fixtures under `testdata/` when useful.
+- Keep unit tests untagged unless the module requires otherwise. Follow the module's declared integration
+  selection mechanism and owning command, including its build tag and Make target where selected;
+  `_integration_test.go` alone does not exclude a file from ordinary test runs. Store package-local fixtures under `testdata/` when useful.
 
 ## Test function names
 
@@ -80,7 +80,8 @@ Illustrative naming adaptations, not instructions to rename untouched source:
   legitimate case names. Do not rewrite fixture IDs merely to make them lowercase phrases.
 - Avoid `/` unless intentionally creating a filtering hierarchy; avoid unnecessary regular
   expression metacharacters. Test selection matches slash-separated name components. Pass any
-  selection through supported Make variables/targets, never a direct test-tool invocation.
+  selection through the declared command owner's supported interface (Make variables/targets where
+  selected), never an invocation that bypasses that owner.
 - Prefer slices for a predictable declared case order. Map iteration order is unspecified and
   must not affect results. Allocate mutable fixtures and mocks per case; cases must not depend
   on siblings having run first.
@@ -148,7 +149,7 @@ Illustrative naming adaptations, not instructions to rename untouched source:
 
 - Apply these rules to new tests and tests whose behavior or structure is edited. Update affected
   names as part of that work; keep broad renaming of untouched tests in a dedicated change.
-- Before renaming, inspect Make/CI filters, baseline registrations, documentation, and any use of
+- Before renaming, inspect command-owner/CI filters, baseline registrations, documentation, and any use of
   `t.Name()` for fixture paths. Preserve or update those references together, including tagged
   integration suites. Renaming must not silently drop selected tests or break fixture lookup.
 - Review naming and test intent against this rule. Go discovery/vet checks do not enforce the

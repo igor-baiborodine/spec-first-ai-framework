@@ -142,5 +142,5 @@ func TestLoad_ShutdownTimeout(t *testing.T) {
 ancestors because environment variables are process-wide. See [Go's Setenv contract](https://pkg.go.dev/testing#T.Setenv).
 For required/unset values, add explicit cases according to the actual loader contract.
 
-Run the owning service's formatting, lint, and unit-test Make targets after adaptation. These
+Run the owning service's declared formatting, lint, and unit-test commands after adaptation. These
 snippets exercise no database, networking, or migration behavior.

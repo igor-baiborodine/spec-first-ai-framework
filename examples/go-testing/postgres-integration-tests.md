@@ -19,7 +19,7 @@ and stale updates wrap `domain.ErrConflict`. These are illustrative contracts, n
 
 Use the actual migration API, driver, schema, and repository in the target module. For GORM,
 adapt connection wiring and retain the same observable assertions. Do not create a test-only
-schema that omits real migrations. The owning integration Make target must set
+schema that omits real migrations. The declared integration command must set
 `POSTGRES_TEST_IMAGE` to its pinned PostgreSQL test image and provide a working container runtime.
 
 Suggested location: `internal/postgres/policy_repository_integration_test.go`.
@@ -50,7 +50,7 @@ import (
 func newTestDB(t *testing.T) *sql.DB {
 	t.Helper()
 	image := os.Getenv("POSTGRES_TEST_IMAGE")
-	require.NotEmpty(t, image, "integration Make target must supply the pinned test image")
+	require.NotEmpty(t, image, "integration command must supply the pinned test image")
 	ctx, cancel := context.WithTimeout(context.Background(), 90*time.Second)
 	defer cancel()
 	container, err := pgcontainer.Run(ctx, image,
@@ -135,7 +135,8 @@ race or a multi-row transaction's atomicity. Add separate cases using two real t
 explicit barriers for those acceptance criteria; verify the final state after rollback or conflict.
 Do not use schema recreation or blanket truncation against a shared database.
 
-Run through the owning `test-integration` Make target after adaptation. Do not skip on Docker or
-database startup failure when this gate is requested; report a failed prerequisite. The target
+Run through the declared integration command (`test-integration` in a Make-selected service)
+after adaptation. Do not skip on Docker or
+database startup failure when this gate is requested; report a failed prerequisite. The command
 should force a fresh integration run when external dependencies change rather than rely on cached
 test results. No container or migration has been executed by this documentation example.

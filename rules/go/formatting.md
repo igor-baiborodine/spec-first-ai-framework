@@ -10,7 +10,7 @@
 
 # Go Formatting
 
-Apply to changed handwritten Go code. Follow the Makefile interface in
+Apply to changed handwritten Go code. Follow the declared command-owner interface in
 [Go development](development.md#scope-and-makefile-interface).
 
 ## Policy

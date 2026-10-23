@@ -438,3 +438,197 @@ def test_go_only_selection_does_not_remove_shared_java_support(consumer):
     assert not any("java" in p for p in json.loads(go.stdout)["composition"]["read"])
     assert "rules/java/development.md" in json.loads(java.stdout)["composition"]["read"]
     assert tree_manifest(consumer["dep"]) == before
+
+
+@pytest.mark.parametrize(
+    "language,defect",
+    [
+        ("go", "language"),
+        ("python", "language"),
+        ("go", "validation"),
+        ("python", "validation"),
+        ("go", "architecture"),
+        ("go", "api"),
+        ("go", "test"),
+        ("python", "test"),
+    ],
+)
+def test_go_python_catalog_rejects_missing_required_routes(source_copy, language, defect):
+    # given
+    path = source_copy / "catalog.json"
+    catalog = json.loads(path.read_text())
+    if defect == "language":
+        del catalog["routes"][language]
+    elif defect == "validation":
+        catalog["routes"][language]["implementation"].remove(f"rules/{language}/validation.md")
+    else:
+        del catalog["routes"][language][defect]
+    path.write_text(json.dumps(catalog))
+    # when / then
+    with pytest.raises(checker.CheckError, match="incomplete (Go|Python) route"):
+        checker.source_check(source_copy)
+
+
+def install_clients(consumer, clients=("codex", "claude"), profile_path="ai/profile.json"):
+    root, framework = consumer["root"], consumer["dep"]
+    for client in clients:
+        templates = framework / "adapters" / client
+        entry = (
+            (templates / "AGENTS.md.in")
+            .read_text()
+            .replace("{{framework_path}}", "ai/framework")
+            .replace("ai/profile.json", profile_path)
+        )
+        with (root / "AGENTS.md").open("a") as stream:
+            stream.write("\n" + entry)
+        if client == "claude":
+            (root / "CLAUDE.md").write_text("Local Claude context.\n\n@AGENTS.md\n")
+        directory = ".agents" if client == "codex" else ".claude"
+        for template in (templates / "skills").glob("*/SKILL.md.in"):
+            target = root / directory / "skills" / template.parent.name / "SKILL.md"
+            target.parent.mkdir(parents=True, exist_ok=True)
+            target.write_text(template.read_text().replace("{{framework_path}}", "ai/framework"))
+
+
+@pytest.mark.integration
+@pytest.mark.parametrize("clients", [("codex",), ("claude",), ("codex", "claude")])
+def test_installed_clients_validate_only_explicit_selection(consumer, clients):
+    # given
+    install_clients(consumer, clients)
+    args = [argument for client in clients for argument in ("--client", client)]
+    # when
+    result = invoke(consumer, "compose", "--language", "go", *args)
+    # then
+    assert result.returncode == 0, result.stderr
+    installation = json.loads(result.stdout)["composition"]["installation"]
+    assert installation["status"] == "passed"
+    assert installation["clients"] == list(clients)
+    assert len([p for p in installation["files"] if p.endswith("/SKILL.md")]) == 6 * len(clients)
+    assert ("CLAUDE.md" in installation["files"]) == ("claude" in clients)
+
+
+@pytest.mark.integration
+@pytest.mark.parametrize(
+    "client,defect,diagnostic",
+    [
+        ("codex", "missing-skill", "missing binding path"),
+        ("claude", "missing-skill", "missing binding path"),
+        ("codex", "wrong-target", "differs from pinned template"),
+        ("claude", "wrong-name", "differs from pinned template"),
+        ("codex", "escaped-skill", "escapes"),
+        ("codex", "missing-root-route", "root routing missing"),
+        ("claude", "missing-root", "missing binding path: CLAUDE.md"),
+        ("claude", "wrong-import", "root import missing"),
+    ],
+)
+def test_installed_client_defects_fail_without_repair(
+    consumer, tmp_path, client, defect, diagnostic
+):
+    # given
+    install_clients(consumer)
+    root = consumer["root"]
+    directory = ".agents" if client == "codex" else ".claude"
+    adapter = root / directory / "skills/code-review/SKILL.md"
+    if defect == "missing-skill":
+        adapter.unlink()
+    elif defect == "wrong-target":
+        adapter.write_text(adapter.read_text().replace("/skills/code-review/", "/skills/missing/"))
+    elif defect == "wrong-name":
+        adapter.write_text(adapter.read_text().replace("name: code-review", "name: invented"))
+    elif defect == "escaped-skill":
+        outside = tmp_path / "outside.md"
+        outside.write_text(adapter.read_text())
+        adapter.unlink()
+        adapter.symlink_to(outside)
+    elif defect == "missing-root-route":
+        (root / "AGENTS.md").write_text("Local guide without shared routing.\n")
+    elif defect == "missing-root":
+        (root / "CLAUDE.md").unlink()
+    elif defect == "wrong-import":
+        (root / "CLAUDE.md").write_text("@unrelated.md\n")
+    # when
+    result = invoke(consumer, "compose", "--client", client)
+    # then
+    assert result.returncode == 1 and not result.stdout
+    assert diagnostic in result.stderr
+
+
+@pytest.mark.integration
+def test_language_only_composition_does_not_certify_installation(consumer):
+    # given
+    assert not (consumer["root"] / ".agents").exists()
+    assert not (consumer["root"] / ".claude").exists()
+    # when
+    language = invoke(consumer, "compose", "--language", "go")
+    installation = invoke(consumer, "compose", "--client", "codex")
+    # then
+    assert language.returncode == 0
+    assert json.loads(language.stdout)["composition"]["installation"] == {
+        "status": "not_checked",
+        "clients": [],
+        "files": [],
+    }
+    assert installation.returncode == 1 and not installation.stdout
+
+
+@pytest.mark.integration
+def test_installed_clients_support_custom_profile_without_site_packages(consumer):
+    # given
+    root = consumer["root"]
+    (root / "ai/profile.json").rename(root / "ai/custom.json")
+    install_clients(consumer, profile_path="ai/custom.json")
+    command = [
+        sys.executable,
+        "-S",
+        "-B",
+        str(CANDIDATE / "tools/framework_check.py"),
+        "compose",
+        "--consumer-root",
+        str(root),
+        "--framework-root",
+        str(consumer["dep"]),
+        "--profile",
+        "ai/custom.json",
+        "--client",
+        "codex",
+        "--client",
+        "claude",
+    ]
+    before = tree_manifest(root)
+    # when
+    result = subprocess.run(command, capture_output=True, text=True, timeout=35)
+    # then
+    assert result.returncode == 0, result.stderr
+    assert json.loads(result.stdout)["composition"]["installation"]["status"] == "passed"
+    assert tree_manifest(root) == before
+
+
+@pytest.mark.integration
+@pytest.mark.parametrize("language", ["go", "python"])
+def test_non_make_command_owner_composes_without_execution(consumer, language):
+    # given
+    root = consumer["root"]
+    script = root / "scripts/check.sh"
+    script.parent.mkdir()
+    script.write_text("#!/bin/sh\nexit 9\n")
+    script.chmod(0o755)
+    path = root / "ai/profile.json"
+    profile = json.loads(path.read_text())
+    profile["commands"]["unit"].update(owner="scripts/check.sh", argv=["scripts/check.sh", "unit"])
+    path.write_text(json.dumps(profile))
+    assert not (root / "Makefile").exists()
+    # when
+    result = invoke(
+        consumer, "compose", "--language", language, "--boundary", "test", "--require", "unit"
+    )
+    # then
+    assert result.returncode == 0, result.stderr
+    assert json.loads(result.stdout)["composition"]["commands_executed"] is False
+
+
+@pytest.mark.integration
+def test_installed_client_option_is_compose_only(consumer):
+    # when
+    result = invoke(consumer, "integrity", "--client", "codex")
+    # then
+    assert result.returncode == 2 and "compose-only" in result.stderr

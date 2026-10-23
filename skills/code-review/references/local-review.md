@@ -106,8 +106,8 @@ check does not replace published PR identity verification.
    workflow skills, language guidance, and `checks/before-merge.md`.
 3. Inspect changed source, tests, contracts, generated output, migrations, configuration, and the
    neighboring code needed to establish actual behavior. For generated code, inspect its source,
-   configuration, and recorded generation evidence. Read Makefiles to determine real validation
-   coverage. In published mode, use commit-pinned content for implementation claims.
+   configuration, and recorded generation evidence. Read the declared command owners (Makefiles where selected) to determine real
+   validation coverage. In published mode, use commit-pinned content for implementation claims.
 
 For contract changes, inspect authoritative schemas, controllers or handlers, gateway mappings,
 callers, and neighboring contracts. Check method or RPC names, request and response semantics,

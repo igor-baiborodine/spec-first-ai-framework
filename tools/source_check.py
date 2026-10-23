@@ -133,20 +133,26 @@ def validate_catalog(root: Path) -> dict:
                 or not set(paths) <= set(components.get(language, []))
             ):
                 raise CheckError("route outside selected language component")
-    java_routes = {
-        "implementation": {
-            "rules/java/README.md",
-            "rules/java/development.md",
-            "rules/java/formatting.md",
-            "rules/java/validation.md",
-        },
-        "architecture": {"rules/java/architecture.md"},
-        "api": {"rules/java/api-transport.md"},
-        "test": {"rules/java/test.md"},
+    required_routes = {
+        language: {
+            "implementation": {
+                f"rules/{language}/{part}.md"
+                for part in ("README", "development", "formatting", "validation")
+            },
+            "architecture": {f"rules/{language}/architecture.md"},
+            "api": {f"rules/{language}/api-transport.md"},
+            "test": {f"rules/{language}/test.md"},
+        }
+        for language in ("go", "java")
     }
-    for boundary, expected in java_routes.items():
-        if set(routes.get("java", {}).get(boundary, [])) != expected:
-            raise CheckError(f"incomplete Java route: {boundary}")
+    required_routes["python"] = {
+        "implementation": families["python"],
+        "test": families["python"],
+    }
+    for language, boundaries in required_routes.items():
+        for boundary, expected in boundaries.items():
+            if set(routes.get(language, {}).get(boundary, [])) != expected:
+                raise CheckError(f"incomplete {language.title()} route: {boundary}")
     for group in ("skills", "templates"):
         for path in catalog[group].values():
             if not inside(root, path).is_file():

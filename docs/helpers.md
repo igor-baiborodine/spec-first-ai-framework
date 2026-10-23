@@ -43,6 +43,20 @@ on stdout; sanitized diagnostics are on stderr. The composer returns selected sh
 consumer guides, capabilities and explicit styles; it never executes profile argv or shell text.
 Static conflict policy validation does not replace actual nested-guide/client conflict handling.
 
+For installed routing, add repeatable `--client codex` and/or `--client claude` to `compose`.
+The `composition.installation` result reports `passed`, selected clients and checked paths only
+when those clients were explicitly selected. With no `--client`, language/capability composition
+remains available and installation reports `not_checked`; it cannot certify an adoption.
+
+For each selected client, the consumer AGENTS.md must contain the rendered `AGENTS.md.in` block
+from that pinned framework. Substitute `{{framework_path}}` and, for a custom `--profile`, the
+profile path. Preserve local guidance around the block. Each of the six installed SKILL.md files
+must match its rendered pinned template, apart from surrounding whitespace; keep custom policy
+in local guides/profile rather than editing thin adapters. Claude additionally requires the
+standalone `@AGENTS.md` import in CLAUDE.md. Missing files, altered names/targets, template drift
+and paths escaping the consumer fail without repair. These structural checks do not establish
+that a running client discovered or followed the files; actual client trials remain required.
+
 ## Dependency checks and lifecycle
 
 Integrity selects the Git index gitlink by default, requiring an initialized clean dependency and

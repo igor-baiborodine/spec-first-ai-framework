@@ -106,4 +106,4 @@ rollback sees a completed transaction. Do not infer that a failed commit safely 
 Extend read-adapter tests with scan failures and `Rows.Err` failures, asserting rows are closed.
 Add domain-error mapping cases for known constraints where the adapter owns that behavior. Keep
 real constraint, isolation, and atomicity assertions in the [PostgreSQL tests](postgres-integration-tests.md).
-Run the owning module's format, lint, and unit-test Make targets after adaptation.
+Run the owning module's declared format, lint, and unit-test commands after adaptation.

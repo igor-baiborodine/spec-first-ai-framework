@@ -145,3 +145,6 @@ separately queries the explicitly configured upstream ref and requires exact pin
 equality without repair or cached-ref success. Preparation, upgrades and rollback are explicit
 operations preserving unrelated work and historical artifacts. See the command contract for the
 remaining executable packaging boundary and [client scenarios](checks/client-compatibility-scenarios.md).
+For adoption, run composition with explicit `--client` selections for all adopted clients and
+require installation `passed`; language-only composition leaves it `not_checked`. Validate the
+[rendered adapters](docs/helpers.md#runtime-and-command-owners), then perform actual client trials.

@@ -98,9 +98,13 @@ run actual owning language/application checks. For example, with verified absolu
 
 ```sh
 "$FRAMEWORK_PYTHON" -B ai/framework/tools/framework_check.py integrity --consumer-root "$CONSUMER_ROOT" --framework-root "$CONSUMER_ROOT/ai/framework"
-"$FRAMEWORK_PYTHON" -B ai/framework/tools/framework_check.py compose --consumer-root "$CONSUMER_ROOT" --framework-root "$CONSUMER_ROOT/ai/framework" --language java --boundary api --boundary test --require unit
+"$FRAMEWORK_PYTHON" -B ai/framework/tools/framework_check.py compose --consumer-root "$CONSUMER_ROOT" --framework-root "$CONSUMER_ROOT/ai/framework" --language java --boundary api --boundary test --require unit --client codex --client claude
 "$FRAMEWORK_PYTHON" -B ai/framework/tools/framework_check.py freshness --consumer-root "$CONSUMER_ROOT" --framework-root "$CONSUMER_ROOT/ai/framework" --timeout 20
 ```
+
+Pass `--client` for every client selected for this adoption (the example selects both).
+Install root blocks and skill files using the [rendering contract](helpers.md#runtime-and-command-owners).
+A language-only compose result reports installation `not_checked` and is insufficient for adoption.
 
 Check JSON reports identify the index pin; use `--commit <consumer-ref>` only when explicitly
 validating that commit, retaining the separately reported current profile identity. Freshness

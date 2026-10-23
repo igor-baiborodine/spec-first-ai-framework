@@ -24,6 +24,13 @@ must remain in the consumer evidence. Do not claim equivalent CLI, IDE, hosted o
 Continue and GitHub Copilot are outside this pilot's support scope; optional hosted review is
 workflow policy rather than an additional supported client.
 
+Before trials, run the consumer's compose binding with `--client codex` and/or `--client claude`
+for every adopted client. The [installed-routing check](helpers.md#runtime-and-command-owners)
+validates rendered root blocks, Claude's import and all six skill adapters per client against the
+pinned templates. Keep local policy around the root blocks and in the profile; thin skill adapters
+must retain the rendered content. A result without selected clients explicitly leaves installation
+unchecked. Structural success does not replace the observations below.
+
 ## Root resolution and trial matrix
 
 Launch with access to the consumer root and its pinned dependency even when cwd is a nested

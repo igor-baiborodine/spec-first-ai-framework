@@ -144,14 +144,15 @@ are described here separately from the diagram's dependency arrows.
   Runtime dispatch from application to an adapter does not imply an application import of that
   adapter. Label arrow meanings; identify component diagrams separately from deployment diagrams.
 - Verify documentation against actual imports, port signatures, constructors, mappings, and resource
-  owners. Validate links and rendering through the owning Make documentation targets, and inspect
-  diagram readability. Follow the development rule's missing-target procedure when needed.
+  owners. Validate links and rendering through the declared documentation commands (Make targets
+  where selected), and inspect diagram readability. Follow the development rule's missing-capability
+  procedure when needed.
 - Verify core behavior independently of live infrastructure, then exercise relevant production
   composition and adapter paths through integration tests. Follow the testing and validation rules;
   a diagram or an import inspection does not prove runtime behavior.
 - Record architectural inspection separately from executed checks. A module topology
   checker may not enforce domain/application/adapter layering within a module.
-  Do not claim an automated architecture gate exists unless an owning Make target actually checks
+  Do not claim an automated architecture gate exists unless a declared owning command actually checks
   those restrictions. Business visibility and appropriate abstraction still require review.
 
 ## Repository reference and adaptation limits

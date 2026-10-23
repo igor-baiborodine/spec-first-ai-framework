@@ -20,7 +20,7 @@ record.
 
 ## Discover the validation boundary
 
-- Read module/workspace manifests, Makefiles (including prerequisites), relevant CI, and service
+- Read module/workspace manifests, declared command owners (including prerequisites), relevant CI, and service
   instructions. Identify changed modules, generated contracts, and dependent consumers.
 - For HTTP/gRPC changes, identify contract sources, the actual request path, OpenAPI/gateway
   outputs, and affected callers using [API and transport verification](api-transport.md#verification-and-adoption).
@@ -35,9 +35,10 @@ record.
 - Inspect each target's actual coverage: package selection, nested modules, build tags, race
   instrumentation, integration dependencies, and whether it changes files. A root target or a
   workspace does not by itself prove that every service is tested.
-- Run the narrowest meaningful targets during implementation, then all applicable module/CI gates.
-  Use supported Make variables for package/test selection; do not invent variables or direct CLI
-  alternatives. Include changed packages outside a target's default selection.
+- Run the narrowest meaningful checks during implementation, then all applicable module/CI gates.
+  Use the declared owner's supported package/test selection interface (Make variables where
+  selected); do not invent options or bypass the owner. Include changed packages outside a
+  command's default selection.
 - Do not run broad aggregates blindly. In the example, `check` tidies dependencies, formats files,
   and runs both unit and integration tests. Dependency maintenance is appropriate only when imports
   or dependencies change, and integration prerequisites must be available.
@@ -75,7 +76,8 @@ idempotence and generation reproducibility when those pipelines change.
   responses, validation, permissions, events, persistence, and serialization semantics.
 - Test real migrations and transaction/conflict behavior with disposable dependencies. Unit mocks
   cannot prove database constraints, isolation, or compatibility with the coexisting legacy service.
-- Before traffic cutover, run the ticket's integration, end-to-end, and performance Make targets
+- Before traffic cutover, run the ticket's integration, end-to-end, and performance commands through
+  their declared owners (Make targets where selected)
   against the Go service's internal endpoints and compare with the independent legacy baseline. Record rollback
   readiness and rollout criteria; a unit-test pass alone does not authorize traffic changes.
 - Verify startup/configuration failures, health probes, cancellation and graceful shutdown, and

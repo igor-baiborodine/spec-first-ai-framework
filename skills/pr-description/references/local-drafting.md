@@ -42,9 +42,10 @@ the ticket ID.
    the complete proposed change. State the base and any unverified base freshness.
 3. Compare ticket requirements with the changed files and supporting evidence. State an
    investigation cause only when evidence establishes it; otherwise identify it as unconfirmed.
-4. Inspect the owning Makefiles and repository workflows before naming validation commands. For Go
-   work, follow `rules/go/development.md` and `rules/go/validation.md`; use only documented
-   targets for the affected module rather than direct Go tool commands.
+4. Inspect the declared command owners and repository workflows before naming validation commands.
+   For Go work, follow `rules/go/development.md` and `rules/go/validation.md`; use the documented
+   commands for the affected module. Where Make owns the capability, inspect its Makefile and use
+   its targets; do not bypass a declared owner with underlying tool commands.
 
 ## Validation notes
 

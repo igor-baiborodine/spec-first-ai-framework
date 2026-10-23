@@ -17,7 +17,7 @@ handler whose `Handle(ctx, query.GetPolicy{PolicyID: id})` method returns the po
 repository error cause. An empty ID returns `query.ErrInvalidID` without calling the repository.
 `domain.ErrNotFound` is a sentinel error.
 
-Generate `domain.MockPolicyReader` from that port using the owning Makefile's Mockery target;
+Generate `domain.MockPolicyReader` from that port using the declared Mockery command (a Make target where selected);
 do not handwrite generated output. This example assumes, as in campsite, that its constructor
 registers expectation verification with `t.Cleanup`. Check the actual generated constructor.
 
@@ -166,5 +166,5 @@ func TestGetPolicyHandler_CancelsInFlightRead(t *testing.T) {
 
 The fallback timer prevents this fake from leaking if the handler discards the caller's context;
 the test must still fail in that case. Channels establish ordering. This proves cancellation through
-the handler/port boundary, not database-driver cancellation. Use the module's race-enabled test
-Make target and bound the entire test run too.
+the handler/port boundary, not database-driver cancellation. Use the module's declared race-enabled test
+command and bound the entire test run too.

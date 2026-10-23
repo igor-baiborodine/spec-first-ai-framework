@@ -239,6 +239,58 @@ def load_profile(root: Path, framework: Path, profile_path: str) -> dict:
     return profile
 
 
+def installed_clients(
+    root: Path,
+    framework: Path,
+    profile: dict,
+    catalog: dict,
+    clients: list[str],
+    profile_path: str,
+) -> dict:
+    """Validate rendered routing files, without executing or claiming client discovery."""
+
+    def rendered(client: str, template: str) -> str:
+        return (
+            inside(framework, f"adapters/{client}/{template}")
+            .read_text()
+            .replace("{{framework_path}}", profile["framework_path"])
+            .strip()
+        )
+
+    checked = []
+    for client in dict.fromkeys(clients):
+        if client not in ("codex", "claude"):
+            raise CheckError("unsupported installed client")
+
+        entry = rendered(client, "AGENTS.md.in").replace("ai/profile.json", profile_path)
+        if entry not in inside(root, "AGENTS.md").read_text():
+            raise CheckError(f"installed {client} root routing missing: AGENTS.md")
+        checked.append("AGENTS.md")
+        if client == "claude":
+            # Preserve local Claude guidance around the standalone import directive.
+            if (
+                rendered(client, "CLAUDE.md.in")
+                not in inside(root, "CLAUDE.md").read_text().splitlines()
+            ):
+                raise CheckError("installed claude root import missing: CLAUDE.md")
+            checked.append("CLAUDE.md")
+        directory = ".agents" if client == "codex" else ".claude"
+        for name, canonical in catalog["skills"].items():
+            relative = f"{directory}/skills/{name}/SKILL.md"
+            expected = rendered(client, f"skills/{name}/SKILL.md.in")
+            target = f"{profile['framework_path']}/{canonical}"
+            if f"Read {target} completely from that root," not in expected:
+                raise CheckError(f"adapter template/catalog mismatch: {client}/{name}")
+            if inside(root, relative).read_text().strip() != expected:
+                raise CheckError(f"installed adapter differs from pinned template: {relative}")
+            checked.append(relative)
+    return {
+        "status": "passed" if clients else "not_checked",
+        "clients": list(dict.fromkeys(clients)),
+        "files": list(dict.fromkeys(checked)),
+    }
+
+
 def composition(
     root: Path,
     framework: Path,
@@ -246,6 +298,8 @@ def composition(
     language: str | None,
     boundaries: list[str],
     capabilities: list[str],
+    clients: list[str] | None = None,
+    profile_path: str = "ai/profile.json",
 ) -> dict:
     catalog = json.loads((framework / "catalog.json").read_text())
     selected = list(catalog["components"]["core"])
@@ -292,6 +346,9 @@ def composition(
         "capabilities": capabilities,
         "commands_executed": False,
         "styles": profile.get("styles", {}),
+        "installation": installed_clients(
+            root, framework, profile, catalog, clients or [], profile_path
+        ),
     }
 
 
@@ -316,11 +373,12 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--language", choices=("go", "java", "python"))
     parser.add_argument("--boundary", action="append", default=[])
     parser.add_argument("--require", action="append", default=[])
+    parser.add_argument("--client", choices=("codex", "claude"), action="append", default=[])
     args = parser.parse_args(argv)
     if args.mode != "source" and args.consumer_root is None:
         parser.error("--consumer-root is required")
-    if args.mode != "compose" and (args.language or args.boundary or args.require):
-        parser.error("language/boundary/require are compose-only")
+    if args.mode != "compose" and (args.language or args.boundary or args.require or args.client):
+        parser.error("language/boundary/require/client are compose-only")
     if args.mode == "source" and (args.commit or args.consumer_root):
         parser.error("source mode does not accept consumer/commit selection")
     try:
@@ -340,7 +398,14 @@ def main(argv: list[str] | None = None) -> int:
             )
             if args.mode == "compose":
                 result["composition"] = composition(
-                    root, framework, profile, args.language, args.boundary, args.require
+                    root,
+                    framework,
+                    profile,
+                    args.language,
+                    args.boundary,
+                    args.require,
+                    args.client,
+                    args.profile,
                 )
             result["profile_sha256"] = digest(inside(root, args.profile).read_bytes())
         print(json.dumps(result, sort_keys=True))

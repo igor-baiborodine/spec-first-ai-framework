@@ -62,7 +62,11 @@ disabled by Make. Markdown check uses disposable copies; its originals remain by
 suite. Fast tests cover pure decisions/fakes and example logic. Integration tests create local
 Git repositories, synthetic commits and subprocesses in owned temporary directories; they
 never target a shared service. Fixtures clean themselves up. They include the prototype's
-48 cases plus extraction regressions. Java routing uses the complete delivered rule family;
+48 cases plus extraction regressions. Routing regressions reject incomplete Go, Java and Python
+routes. Installed-client cases cover selection, missing/altered/escaped adapters, root routing,
+custom profiles, standard-library operation and explicit unchecked language-only results.
+Non-Make command bindings remain supported and are never executed by composition.
+Java routing uses the complete delivered rule family;
 semantic review scenarios live in [Java examples](examples/java/README.md). Those scenarios are
 not executable Java application tests. No client/application acceptance suite is implied by `make check`.
 

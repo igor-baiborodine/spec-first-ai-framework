@@ -76,10 +76,11 @@ Check for:
   justified manual scenario; bug reproduction and migration baseline provenance when applicable
 
 For Python work, load [the Python entry point](../../rules/python/README.md) and all four
-linked rules. Establish why Python fits better than a simple shell workflow, identify the script
-owner and Make interface, and define target selection, mutation boundaries, rerun/recovery
-behavior, and secret handling where applicable. Do not turn a tooling request into a Python
-service or a wholesale shell rewrite.
+linked rules and the consumer-declared Python role. For auxiliary tooling, establish why Python
+fits better than a simple shell workflow; do not turn that request into a Python service or a
+wholesale shell rewrite. Identify the code and command owners (Make targets where selected), and
+define target selection, mutation boundaries, rerun/recovery behavior, and secret handling where
+applicable. Use the declared interface without bypassing its owner.
 
 If information is missing or ambiguous:
 

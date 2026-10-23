@@ -4,7 +4,7 @@
 - [Go Testing Examples](#go-testing-examples)
   - [Choose the test boundary](#choose-the-test-boundary)
   - [Before adapting](#before-adapting)
-  - [Execute through Make](#execute-through-make)
+  - [Execute through the declared owner](#execute-through-the-declared-owner)
   - [Source and deliberate adaptations](#source-and-deliberate-adaptations)
 
 <!-- END doctoc generated TOC please keep comment here to allow auto update -->
@@ -57,15 +57,16 @@ Use the module's pinned Go and library versions; verify API compatibility before
 These practices use Go's [test lifecycle and isolation APIs](https://pkg.go.dev/testing) and
 Testify's [fatal assertions](https://pkg.go.dev/github.com/stretchr/testify/require).
 
-## Execute through Make
+## Execute through the declared owner
 
-Inspect the owning Makefile before running anything. Once the service defines these capabilities,
-use its documented equivalents of `make gen-mock`, `make format`, `make format-check`, `make lint`,
-`make test`, and `make test-integration`. Run a race-enabled target for concurrency changes.
-Generation/dependency installation also goes through Make; do not call underlying tools directly.
+Inspect the consumer's declared command owners before running anything. In a Make-selected
+service, use its documented equivalents of `make gen-mock`, `make format`, `make format-check`,
+`make lint`, `make test`, and `make test-integration`. Other consumers use their explicitly declared
+equivalent commands. Run a race-enabled check for concurrency changes. Generation and dependency
+installation also use the declared owner; do not bypass it with underlying tools.
 
-These target names are illustrative: no service test targets are supplied by this examples folder.
-Add missing targets within the implementation ticket's scope or report the missing capability.
+These Make target names are illustrative: no service test commands are supplied by this examples
+folder. Add missing capabilities within the implementation ticket's scope or report the gap.
 Integration targets must enable the integration build tag, provision disposable dependencies, and
 bound the overall run. A missing container runtime is a failed prerequisite, not a silently skipped
 test. Record executed targets, scope, outcomes, and unrun checks in the ticket artifacts.

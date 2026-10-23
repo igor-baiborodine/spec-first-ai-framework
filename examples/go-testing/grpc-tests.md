@@ -20,7 +20,7 @@ and `Status`. Protobuf validation requires a UUID. `rpc.NewServer(app)` returns 
 The contract maps a wrapped `domain.ErrNotFound` to `NotFound` with a safe message, and unexpected
 errors to `Internal` with a generic message. These types and messages are examples; adapt to the
 actual approved proto, server constructor/registration, middleware, and error contract. Do not
-substitute a test-only server that omits the real interceptors. Generate protobufs through Make.
+substitute a test-only server that omits the real interceptors. Generate protobufs through the declared command owner (Make where selected).
 
 Suggested location: `internal/grpc/server_integration_test.go`.
 
@@ -173,7 +173,7 @@ The invalid-input case asserts zero application calls. The success expectation i
 response, not the production mapper's output. Status assertions compare codes and only
 contractually stable messages, not formatting of the entire error string.
 
-Run the module's format/lint and integration Make targets. Extend this pattern for required
+Run the module's declared format/lint and integration commands. Extend this pattern for required
 authentication, authorization, deadlines, metadata, and HTTP gateway behavior. This example uses
 an app fake and loopback plaintext; it proves neither real persistence nor production TLS/security
 configuration, and `Stop` deliberately does not test graceful shutdown.
