@@ -19,21 +19,27 @@ validation and remaining limitations. Authority changes require independent main
 ## Setup
 
 The initial supported environment is POSIX with Git, a shell, uv 0.13.1 and CPython 3.14.8.
-Markdown tooling was tested with Node 24.13.0 and requires npm plus doctoc 2.5.0. Other versions
-and platforms are unverified. Install/provision those prerequisites explicitly before setup.
+Node tooling was tested with Node 24.13.0 and npm. The lockfile contains doctoc 2.5.0 and exact
+release-calculation libraries. Workflow lint setup is checksum-verified for Linux amd64 with
+actionlint 1.7.12. Other versions and platforms are unverified. Install/provision those
+prerequisites explicitly before setup.
 
 From this checkout root:
 
 ```sh
 make setup
 make markdown-setup
+make actionlint-setup
 ```
 
-Setup downloads the locked packages and creates `.venv` or `node_modules`; uv/npm caches can
-also be written. `uv.lock` and `package-lock.json` carry resolved versions and artifact hashes.
+Setup downloads the locked packages and creates `.venv`, `node_modules`, or the ignored
+`.tools/actionlint/1.7.12` binary; uv/npm caches can also be written. The actionlint archive is
+checked against the reviewed Linux amd64 SHA-256 before extraction. `uv.lock` and
+`package-lock.json` carry resolved Python/Node versions and artifact hashes.
 Normal checks do not invoke setup, download packages or substitute an interpreter. Dependencies
 are development-only; consumer integrity/freshness/composition use Python's standard library.
-PyYAML is imported only by the source-check operation for real YAML frontmatter validation.
+PyYAML is imported by source checking for real YAML frontmatter validation and by the fast CI
+contract tests. Runtime consumer integrity/freshness/composition does not import it.
 
 The owner-managed interpreter is `.venv/bin/python`. `PYTHON=/absolute/path/to/python` is
 supported if it is CPython 3.14.8; development checks also require the exact declared package pins.
@@ -46,6 +52,7 @@ Development checks compare the selected environment against the lock offline wit
 make runtime-check development-check
 make format PYTHON_FILES='tools tests examples/python-testing'
 make format-check lint test-collect test-fast test-integration source-check
+make workflow-check workflow-test
 make check test-collect
 make markdown-format MARKDOWN_FILES='README.md CONTRIBUTING.md'
 make markdown-check MARKDOWN_FILES='README.md CONTRIBUTING.md'
@@ -69,6 +76,19 @@ Non-Make command bindings remain supported and are never executed by composition
 Java routing uses the complete delivered rule family;
 semantic review scenarios live in [Java examples](examples/java/README.md). Those scenarios are
 not executable Java application tests. No client/application acceptance suite is implied by `make check`.
+
+`workflow-check` uses the preinstalled, checksum-verified actionlint 1.7.12. It lints every
+`.github/workflows/*.yml` or `*.yaml` file without installing dependencies; ShellCheck and
+pyflakes integration are intentionally disabled. `workflow-test` checks that an invalid GitHub
+expression fails the owning lint command. `make check` includes both through `workflow-test`,
+so a missing binary or a lint failure stops the gate. `ACTIONLINT=/absolute/path/to/actionlint`
+may select another copy only when its binary checksum and version match the pinned release.
+
+The `Framework validation` GitHub Actions workflow runs on every pull request and main push
+without path filters. Its validation job uses read-only `contents` permission, checks out full
+history, provisions dependencies in explicit setup steps, runs `make check test-collect`, and
+checks all tracked Markdown files. It does not publish a release. Local success does not prove
+that a hosted run or repository settings enforce the same checks.
 
 Make resolves this checkout from its own file: root `make`, `make -C /path/to/framework`, and
 nested `make -f /path/to/framework/Makefile` work. Recursive callers must use `$(MAKE)` and pass

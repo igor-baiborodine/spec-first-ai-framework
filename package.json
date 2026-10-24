@@ -1,8 +1,13 @@
 {
-  "name": "spec-first-ai-framework-markdown",
+  "name": "spec-first-ai-framework-tools",
   "version": "0.1.0",
   "private": true,
   "license": "MIT",
-  "description": "Explicitly provisioned framework Markdown tooling; tested with Node 24.13.0",
-  "devDependencies": {"doctoc": "2.5.0"}
+  "description": "Explicitly provisioned framework Markdown and release tooling; tested with Node 24.13.0",
+  "devDependencies": {
+    "conventional-changelog-conventionalcommits": "10.4.1",
+    "conventional-commits-parser": "7.1.3",
+    "doctoc": "2.5.0",
+    "semver": "7.8.5"
+  }
 }
