@@ -10,7 +10,7 @@ ROOT = Path(__file__).resolve().parents[1]
 def test_validation_workflow_covers_every_pr_and_main_push_with_read_only_permission():
     # given
     workflow = yaml.load(
-        (ROOT / ".github/workflows/framework-validation.yml").read_text(), Loader=yaml.BaseLoader
+        (ROOT / ".github/workflows/validation.yml").read_text(), Loader=yaml.BaseLoader
     )
 
     # when / then
@@ -29,7 +29,7 @@ def test_validation_workflow_covers_every_pr_and_main_push_with_read_only_permis
 def test_validation_workflow_runs_pinned_setup_and_required_owners():
     # given
     workflow = yaml.load(
-        (ROOT / ".github/workflows/framework-validation.yml").read_text(), Loader=yaml.BaseLoader
+        (ROOT / ".github/workflows/validation.yml").read_text(), Loader=yaml.BaseLoader
     )
     steps = workflow["jobs"]["validate"]["steps"]
     actions = {step["uses"] for step in steps if "uses" in step}
