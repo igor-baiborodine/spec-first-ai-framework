@@ -25,6 +25,37 @@ def object_id(value: str) -> str:
     return value
 
 
+RELEASE_TAG = re.compile(r"refs/tags/v(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)")
+
+
+def release_ref(profile: dict) -> str | None:
+    if "upstream_ref" not in profile:
+        return None
+    ref = profile["upstream_ref"]
+    if not isinstance(ref, str) or RELEASE_TAG.fullmatch(ref) is None:
+        raise CheckError("upstream_ref must be a canonical release tag ref")
+    return ref
+
+
+def remote_tag(git: Git, root: Path, source: str, ref: str) -> tuple[str, str | None]:
+    response = git.run(root, "ls-remote", "--exit-code", "--tags", "--", source, ref, f"{ref}^{{}}")
+    rows = [line.split() for line in response.splitlines()]
+    if len(rows) == 1 and len(rows[0]) == 2 and rows[0][1] == ref:
+        return object_id(rows[0][0]), None
+    if (
+        len(rows) == 2
+        and all(len(row) == 2 for row in rows)
+        and rows[0][1] == ref
+        and rows[1][1] == f"{ref}^{{}}"
+    ):
+        tag_object = object_id(rows[0][0])
+        peeled = object_id(rows[1][0])
+        if tag_object == peeled:
+            raise CheckError("selected tag response is ambiguous")
+        return peeled, tag_object
+    raise CheckError("selected tag response is missing or ambiguous")
+
+
 def pin(git: Git, root: Path, path: str, commit: str | None) -> str:
     if commit is None:
         lines = git.run(root, "ls-files", "--stage", "--", path).splitlines()
@@ -136,7 +167,9 @@ def dependency_check(
         dependency, "status", "--porcelain=v1", "--untracked-files=all", "--ignore-submodules=none"
     ):
         raise CheckError("framework has tracked or non-ignored untracked changes")
-    source, ref = source_contract(git, root, dependency, path, selected)
+    source, branch = source_contract(git, root, dependency, path, selected)
+    tag = release_ref(profile)
+    ref = tag if tag is not None else branch
     try:
         committed = pin(git, root, path, "HEAD")
     except CheckError:
@@ -152,12 +185,18 @@ def dependency_check(
         "ref": ref,
         "freshness": "unverified",
     }
+    if tag is not None:
+        result.update(ref_kind="tag", configured_branch=branch)
     if online:
-        response = git.run(root, "ls-remote", "--exit-code", "--refs", "--", source, ref)
-        rows = [line.split() for line in response.splitlines()]
-        if len(rows) != 1 or len(rows[0]) != 2 or rows[0][1] != ref:
-            raise CheckError("upstream ref response is missing or ambiguous")
-        upstream = object_id(rows[0][0])
+        if tag is not None:
+            upstream, tag_object = remote_tag(git, root, source, ref)
+            result["tag_object"] = tag_object
+        else:
+            response = git.run(root, "ls-remote", "--exit-code", "--refs", "--", source, ref)
+            rows = [line.split() for line in response.splitlines()]
+            if len(rows) != 1 or len(rows[0]) != 2 or rows[0][1] != ref:
+                raise CheckError("upstream ref response is missing or ambiguous")
+            upstream = object_id(rows[0][0])
         if upstream != expected:
             raise CheckError(
                 f"upstream differs: pin={expected} upstream={upstream}; reviewed update required"
@@ -173,9 +212,12 @@ def load_profile(root: Path, framework: Path, profile_path: str) -> dict:
     if (
         not isinstance(profile, dict)
         or type(profile.get("version")) is not int
-        or profile["version"] != 1
+        or profile["version"] not in (1, 2)
     ):
         raise CheckError("unsupported or missing profile version")
+    if profile["version"] == 1 and "upstream_ref" in profile:
+        raise CheckError("upstream_ref requires profile version 2")
+    release_ref(profile)
     for key in ("consumer", "framework_path", "artifact_root", "issue_sync"):
         if not isinstance(profile.get(key), str) or not profile[key]:
             raise CheckError(f"missing profile binding: {key}")
