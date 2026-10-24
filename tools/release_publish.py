@@ -30,10 +30,30 @@ REPOSITORY = "igor-baiborodine/spec-first-ai-framework"
 MAIN_REF = "refs/heads/main"
 SHA = re.compile(r"[0-9a-f]{40}")
 TAG = re.compile(r"v(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)")
+# Only fixed calculator diagnostics and hex identities may reach publication logs.
+# Unknown errors (including parser/runtime output) retain the generic safe stop.
+CALCULATION_DIAGNOSTIC = re.compile(
+    r"Release calculation: ("
+    r"Malformed Conventional Commit header|Malformed breaking-change footer|"
+    r"Release range contains a non-squash merge|Expected a full validated commit SHA|"
+    r"Complete Git history is required|Validated SHA does not name a commit|"
+    r"Required v1\.0\.0 baseline tag is missing|"
+    r"v1\.0\.0 is not reachable from the validated SHA|No reachable release tag|"
+    r"Git ancestry check failed; release history is unavailable|"
+    r"Git (?:rev-parse|for-each-ref|rev-list|show) failed; "
+    r"release history is unavailable or invalid"
+    r")(?P<commit> \[commit [0-9a-f]{40}(?:[0-9a-f]{24})?\])?"
+)
 
 
 class PublicationError(CheckError):
     """Controlled, non-secret publication stop."""
+
+
+def calculation_failure(output: str) -> str:
+    match = CALCULATION_DIAGNOSTIC.fullmatch(output.strip())
+    reason = f": {match[1]}{match['commit'] or ''}" if match else ""
+    return f"release calculation failed{reason}; no publication attempted"
 
 
 def valid_sha(value: object) -> str:
@@ -104,8 +124,16 @@ class Runner:
         self.deadline = time.monotonic() + seconds
 
     def run(
-        self, argv: list[str], label: str, *, authenticated: bool = False, data: bytes | None = None
+        self,
+        argv: list[str],
+        label: str,
+        *,
+        authenticated: bool = False,
+        data: bytes | None = None,
+        capture_stderr: bool = False,
     ) -> tuple[int, str]:
+        if authenticated and capture_stderr:
+            raise PublicationError("authenticated subprocess diagnostics cannot be captured")
         remaining = self.deadline - time.monotonic()
         if remaining <= 0:
             raise PublicationError("publication deadline exceeded; remote outcome unverified")
@@ -130,7 +158,7 @@ class Runner:
                 argv,
                 stdin=subprocess.PIPE if data is not None else subprocess.DEVNULL,
                 stdout=output,
-                stderr=subprocess.DEVNULL,
+                stderr=subprocess.STDOUT if capture_stderr else subprocess.DEVNULL,
                 env=environment,
                 start_new_session=True,
             )
@@ -379,9 +407,10 @@ def main(argv: list[str] | None = None) -> int:
         status, output = runner.run(
             ["node", str(script), "calculate", "--repo", str(repository), "--head", head],
             "release calculation",
+            capture_stderr=True,
         )
         if status != 0:
-            raise PublicationError("release calculation failed; no publication attempted")
+            raise PublicationError(calculation_failure(output))
         calculation = validate_calculation(json.loads(output), head)
         result = publish(calculation, GitHub(runner, executable), head)
         print(json.dumps(result, sort_keys=True))

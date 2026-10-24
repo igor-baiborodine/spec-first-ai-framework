@@ -415,6 +415,142 @@ def test_gh_timeout_kills_owned_descendants_and_hides_token(tmp_path, capsys):
     assert not proc.exists() or proc.read_text().split()[2] == "Z"
 
 
+@pytest.mark.parametrize(
+    "output",
+    [
+        "synthetic-secret-must-not-leak",
+        "Release calculation: synthetic-secret-must-not-leak",
+        "Release calculation: Malformed Conventional Commit header synthetic-secret-must-not-leak",
+        "Release calculation: Malformed Conventional Commit header\nsynthetic-secret-must-not-leak",
+        "Release calculation: Malformed Conventional Commit header [commit synthetic-secret-must-not-leak]",
+    ],
+)
+def test_calculation_failure_never_relays_unrecognized_output(output):
+    # when
+    diagnostic = publisher.calculation_failure(output)
+    # then
+    assert diagnostic == "release calculation failed; no publication attempted"
+
+
+def test_authenticated_diagnostics_cannot_opt_into_capture():
+    # given
+    runner = publisher.Runner("synthetic-secret-must-not-leak")
+    # when / then
+    with pytest.raises(publisher.PublicationError, match="cannot be captured"):
+        runner.run(
+            ["must-not-start"], "authenticated phase", authenticated=True, capture_stderr=True
+        )
+
+
+@pytest.mark.integration
+def test_captured_calculation_stderr_keeps_the_output_bound(capsys):
+    # given
+    runner = publisher.Runner("synthetic-secret-must-not-leak")
+    # when / then
+    with pytest.raises(publisher.PublicationError, match="response exceeded its size bound"):
+        runner.run(
+            [sys.executable, "-c", "import sys; sys.stderr.write('x' * (1024 * 1024 + 1))"],
+            "release calculation",
+            capture_stderr=True,
+        )
+    assert "synthetic-secret-must-not-leak" not in capsys.readouterr().err
+
+
+@pytest.mark.integration
+@pytest.mark.parametrize(
+    ("scenario", "reason"),
+    [
+        ("header", "Malformed Conventional Commit header"),
+        ("footer", "Malformed breaking-change footer"),
+        ("baseline", "Required v1.0.0 baseline tag is missing"),
+    ],
+)
+def test_calculation_failure_reports_safe_reason_before_any_github_call(tmp_path, scenario, reason):
+    # given: real invalid history, with a sentinel in both the message and token.
+    repository = tmp_path / "repository"
+    repository.mkdir()
+
+    def git(*args):
+        return subprocess.run(
+            ["git", "-C", str(repository), *args],
+            text=True,
+            capture_output=True,
+            check=True,
+            timeout=10,
+        ).stdout.strip()
+
+    sentinel = "synthetic-secret-must-not-leak"
+    git("init", "-q", "-b", "main")
+    git("config", "user.name", "Synthetic Release")
+    git("config", "user.email", "fixture@example.invalid")
+    git("commit", "--allow-empty", "-q", "-m", "chore: baseline")
+    if scenario != "baseline":
+        git("tag", "v1.0.0")
+    message = f"invalid {sentinel}" if scenario == "header" else f"fix: {sentinel}"
+    if scenario == "footer":
+        message += "\n\nBREAKING CHANGE:"
+    git("commit", "--allow-empty", "-q", "-m", message)
+    bad_commit = git("rev-parse", "HEAD")
+    git("commit", "--allow-empty", "-q", "-m", "docs: later valid commit")
+    head = git("rev-parse", "HEAD")
+    event_file = tmp_path / "event.json"
+    event_file.write_text(json.dumps(validation_event(head)))
+    called = tmp_path / "gh-called"
+    fake = tmp_path / "gh"
+    fake.write_text(
+        f"#!{sys.executable}\nfrom pathlib import Path\n"
+        f"Path({str(called)!r}).touch()\nraise SystemExit(1)\n"
+    )
+    fake.chmod(0o755)
+
+    def manifest():
+        return {
+            str(path.relative_to(repository)): sha256(path.read_bytes()).hexdigest()
+            for path in repository.rglob("*")
+            if path.is_file()
+        }
+
+    original = manifest()
+    # when
+    result = subprocess.run(
+        [
+            sys.executable,
+            "-B",
+            str(ROOT / "tools/release_publish.py"),
+            "--repo",
+            str(repository),
+            "--head",
+            head,
+            "--event-file",
+            str(event_file),
+            "--gh",
+            str(fake),
+            "--validation-result",
+            "success",
+        ],
+        text=True,
+        capture_output=True,
+        timeout=35,
+        env={
+            **os.environ,
+            "GH_TOKEN": sentinel,
+            "GITHUB_EVENT_NAME": "workflow_run",
+            "GITHUB_REPOSITORY": publisher.REPOSITORY,
+            "GITHUB_REF": publisher.MAIN_REF,
+        },
+    )
+    # then
+    assert result.returncode == 1
+    assert reason in result.stderr
+    if scenario != "baseline":
+        assert bad_commit in result.stderr, "report the offending commit, not just HEAD"
+    assert "no publication attempted" in result.stderr
+    assert sentinel not in result.stdout + result.stderr
+    assert result.stdout == ""
+    assert not called.exists()
+    assert manifest() == original
+
+
 @pytest.mark.integration
 def test_cli_publishes_and_reruns_only_against_fake_github_and_disposable_git(tmp_path):
     # given: real local release history and a fake gh executable with external state.

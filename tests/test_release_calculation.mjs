@@ -125,6 +125,24 @@ test('malformed messages fail rather than becoming no-release', () => fixture((r
   assert.throws(() => calculate(repo, commit(repo, 'broken release-driving message')));
 }));
 
+test('a conventionally named merge is rejected with its commit identity', () => fixture((repo) => {
+  const branch = git(repo, 'branch', '--show-current');
+  git(repo, 'checkout', '-q', '-b', 'topic');
+  commit(repo, 'feat: topic change');
+  git(repo, 'checkout', '-q', branch);
+  commit(repo, 'fix: main change');
+  git(repo, 'merge', '--no-ff', '-m', 'feat: combine topic', 'topic');
+  const head = git(repo, 'rev-parse', 'HEAD');
+  const script = new URL('../tools/release-calculation.mjs', import.meta.url).pathname;
+  const result = spawnSync('node', [script, 'calculate', '--repo', repo, '--head', head], {
+    encoding: 'utf8', timeout: 10000,
+  });
+  assert.equal(result.status, 1);
+  assert.match(result.stderr, /Release range contains a non-squash merge/u);
+  assert.ok(result.stderr.includes(head));
+  assert.equal(result.stdout, '');
+}));
+
 test('missing baseline, unrelated baseline, and shallow history fail closed', () => fixture((repo) => {
   const head = commit(repo, 'fix: repair');
   assert.throws(() => calculate(repo, '0'.repeat(40)));

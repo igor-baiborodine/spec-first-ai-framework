@@ -99,7 +99,7 @@ expression fails the owning lint command. `make check` includes both through `wo
 so a missing binary or a lint failure stops the gate. `ACTIONLINT=/absolute/path/to/actionlint`
 may select another copy only when its binary checksum and version match the pinned release.
 
-The `Framework validation` GitHub Actions workflow runs on every pull request and main push
+The `Framework Validation` GitHub Actions workflow runs on every pull request and main push
 without path filters. Its validation job uses read-only `contents` permission, checks out full
 history, provisions dependencies in explicit setup steps, runs `make check test-collect`, and
 checks all tracked Markdown files. PR title/body inputs are checked on open, synchronize, reopen,

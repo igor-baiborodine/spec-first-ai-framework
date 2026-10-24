@@ -77,9 +77,16 @@ export function calculate(repo, head) {
   let bump = null;
   for (const hash of hashes) {
     const parents = git(repo, 'show', '-s', '--format=%P', hash).split(' ').filter(Boolean);
-    if (parents.length !== 1) throw new Error('Release range contains a non-squash merge');
+    if (parents.length !== 1) {
+      throw new Error(`Release range contains a non-squash merge [commit ${hash}]`);
+    }
     const message = git(repo, 'show', '-s', '--format=%B', hash);
-    const current = classifyMessage(message);
+    let current;
+    try {
+      current = classifyMessage(message);
+    } catch (error) {
+      throw new Error(`${error.message} [commit ${hash}]`, { cause: error });
+    }
     if ((priority[current] || 0) > (priority[bump] || 0)) bump = current;
   }
   return {
