@@ -16,7 +16,7 @@ def test_validation_workflow_covers_every_pr_and_main_push_with_read_only_permis
     # when / then
     events = workflow["on"]
     assert {"pull_request", "push"} <= set(events)
-    assert events["pull_request"] == ""
+    assert events["pull_request"] == {"types": ["opened", "synchronize", "reopened", "edited"]}
     assert events["push"] == {"branches": ["main"]}
     assert workflow["permissions"] == {"contents": "read"}
     assert "validate" in workflow["jobs"]
@@ -48,6 +48,14 @@ def test_validation_workflow_runs_pinned_setup_and_required_owners():
         for run in runs
     )
     assert "make check test-collect" in runs
+    pr_validation = next(
+        step for step in steps if step.get("name") == "Validate pull request squash-message inputs"
+    )
+    assert pr_validation["if"] == "github.event_name == 'pull_request'"
+    assert (
+        pr_validation["run"]
+        == 'node tools/release-calculation.mjs validate-pr --event-file "$GITHUB_EVENT_PATH"'
+    )
     assert any(
         "git ls-files -z -- '*.md'" in run
         and './scripts/markdown.sh check "${markdown_files[@]}"' in run
@@ -68,5 +76,6 @@ def test_root_check_requires_workflow_lint_and_existing_owners():
         "test-integration",
         "source-check",
         "workflow-test",
+        "release-test",
     } <= set(check_line.split("##", 1)[0].split()[1:])
     assert "workflow-test: workflow-check" in makefile

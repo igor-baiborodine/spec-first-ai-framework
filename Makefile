@@ -3,15 +3,16 @@ FRAMEWORK_ROOT := $(patsubst %/,%,$(dir $(abspath $(lastword $(MAKEFILE_LIST))))
 PYTHON ?= $(FRAMEWORK_ROOT)/.venv/bin/python
 UV ?= uv
 ACTIONLINT ?= $(FRAMEWORK_ROOT)/.tools/actionlint/1.7.12/actionlint
+NODE ?= node
 PYTHON_ENV = $(abspath $(dir $(PYTHON))/..)
 PYTHON_FILES ?= tools tests examples/python-testing
 MARKDOWN_FILES ?=
 export PYTHONDONTWRITEBYTECODE := 1
 export RUFF_NO_CACHE := true
 
-.PHONY: help setup markdown-setup actionlint-setup runtime-check development-check format format-check lint test-collect test-fast test-integration check source-check markdown-format markdown-check workflow-check workflow-test
+.PHONY: help setup markdown-setup actionlint-setup runtime-check development-check format format-check lint test-collect test-fast test-integration check source-check markdown-format markdown-check workflow-check workflow-test release-test
 help: ## Show supported interfaces without setup or mutation
-	@printf '%s\n' 'setup: explicitly provision locked CPython development environment (network/cache writes)' 'markdown-setup: explicitly provision locked Node Markdown/release dependencies (network/node_modules writes)' 'actionlint-setup: explicitly provision checksum-verified actionlint 1.7.12 for Linux amd64' 'check test-collect: source, Python and workflow validation plus disposable tests' 'format: selected Python mutation; override PYTHON_FILES for narrow scope' 'markdown-format / markdown-check: require explicit MARKDOWN_FILES selection' 'PYTHON overrides must identify CPython 3.14.8; checks never install'
+	@printf '%s\n' 'setup: explicitly provision locked CPython development environment (network/cache writes)' 'markdown-setup: explicitly provision locked Node Markdown/release dependencies (network/node_modules writes)' 'actionlint-setup: explicitly provision checksum-verified actionlint 1.7.12 for Linux amd64' 'check test-collect: source, Python, workflow and release validation plus disposable tests' 'release-test: exercise version calculation in disposable Git repositories' 'format: selected Python mutation; override PYTHON_FILES for narrow scope' 'markdown-format / markdown-check: require explicit MARKDOWN_FILES selection' 'PYTHON overrides must identify CPython 3.14.8; checks never install'
 setup: ## Explicitly provision the pinned environment and dependencies
 	@cd "$(FRAMEWORK_ROOT)" && "$(UV)" sync --locked --python 3.14.8
 markdown-setup: ## Explicitly provision locked Node Markdown and release dependencies
@@ -42,8 +43,10 @@ workflow-check: ## Lint all framework workflows with the pinned, preinstalled ac
 	@"$(FRAMEWORK_ROOT)/scripts/actionlint_tool.sh" check "$(ACTIONLINT)"
 workflow-test: workflow-check ## Verify workflow lint failure propagation with disposable fixtures
 	@"$(FRAMEWORK_ROOT)/tests/test_workflow_validation.sh" "$(ACTIONLINT)"
+release-test: ## Validate release calculation and squash-message inputs without publication
+	@cd "$(FRAMEWORK_ROOT)" && "$(NODE)" --test tests/test_release_calculation.mjs
 markdown-format: runtime-check ## Format explicit Markdown files through owned doctoc
 	@cd "$(FRAMEWORK_ROOT)" && "$(FRAMEWORK_ROOT)/scripts/markdown.sh" format $(MARKDOWN_FILES)
 markdown-check: runtime-check ## Check explicit Markdown files using disposable copies
 	@cd "$(FRAMEWORK_ROOT)" && "$(FRAMEWORK_ROOT)/scripts/markdown.sh" check $(MARKDOWN_FILES)
-check: format-check lint test-fast test-integration source-check workflow-test ## Local development gate; no final client/adoption claim
+check: format-check lint test-fast test-integration source-check workflow-test release-test ## Local development gate; no final client/adoption claim

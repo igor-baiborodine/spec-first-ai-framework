@@ -2,6 +2,7 @@
 <!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
 
 - [Contributing](#contributing)
+  - [Script language choices](#script-language-choices)
   - [Setup](#setup)
   - [Checks and scope](#checks-and-scope)
   - [Portable helper interfaces](#portable-helper-interfaces)
@@ -15,6 +16,16 @@ Read [AGENTS.md](AGENTS.md) for contributor scope and [consumer.md](consumer.md)
 consumer behavior. Keep rule changes traceable to observed practice and independent expected
 outcomes. Submit a focused branch and pull request describing the problem, final behavior,
 validation and remaining limitations. Authority changes require independent maintainer review.
+
+## Script language choices
+
+Use shell for simple command wiring and Python for auxiliary scripts that parse structured data,
+validate repository state, or orchestrate processes. JavaScript is a specific exception for the
+issue-3 release calculator: the reviewed D01 decision selected the Node Conventional Commit
+parser, preset, and SemVer libraries, so the adapter calls those libraries directly. Node was
+already a development prerequisite for Markdown tooling; the release packages are exact-pinned in
+`package-lock.json` and exercised by `make release-test`. This exception does not make JavaScript
+the default for new scripts or change the Python ownership of consumer checks.
 
 ## Setup
 
@@ -53,6 +64,7 @@ make runtime-check development-check
 make format PYTHON_FILES='tools tests examples/python-testing'
 make format-check lint test-collect test-fast test-integration source-check
 make workflow-check workflow-test
+make release-test
 make check test-collect
 make markdown-format MARKDOWN_FILES='README.md CONTRIBUTING.md'
 make markdown-check MARKDOWN_FILES='README.md CONTRIBUTING.md'
@@ -87,8 +99,19 @@ may select another copy only when its binary checksum and version match the pinn
 The `Framework validation` GitHub Actions workflow runs on every pull request and main push
 without path filters. Its validation job uses read-only `contents` permission, checks out full
 history, provisions dependencies in explicit setup steps, runs `make check test-collect`, and
-checks all tracked Markdown files. It does not publish a release. Local success does not prove
-that a hosted run or repository settings enforce the same checks.
+checks all tracked Markdown files. PR title/body inputs are checked on open, synchronize, reopen,
+and edit. The title must be a Conventional Commit header; a breaking-change footer belongs in
+the proposed squash body. This PR check is preliminary: before squash merging, inspect the final
+title and body in the merge dialog and retain the footer. Release calculation checks actual main
+commits after merge. The workflow does not publish a release. Local success does not prove that a
+hosted run or repository settings enforce the same checks.
+
+`make release-test` checks the release adapter with disposable Git histories. For a local preview
+with complete history and the baseline tag available, run
+`node tools/release-calculation.mjs calculate --repo . --head <full-validated-SHA>`.
+The command emits JSON with the previous tag, highest bump, and candidate tag or `null`; it writes
+no tag, release, package version, or changelog. To check a proposed squash message saved locally,
+run `node tools/release-calculation.mjs validate-message --message-file <path>`.
 
 Make resolves this checkout from its own file: root `make`, `make -C /path/to/framework`, and
 nested `make -f /path/to/framework/Makefile` work. Recursive callers must use `$(MAKE)` and pass

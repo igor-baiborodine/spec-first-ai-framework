@@ -2,6 +2,7 @@ name: Framework Validation
 
 on:
   pull_request:
+    types: [opened, synchronize, reopened, edited]
   push:
     branches:
       - main
@@ -39,6 +40,10 @@ jobs:
 
       - name: Check framework source, tooling, workflows, and tests
         run: make check test-collect
+
+      - name: Validate pull request squash-message inputs
+        if: github.event_name == 'pull_request'
+        run: node tools/release-calculation.mjs validate-pr --event-file "$GITHUB_EVENT_PATH"
 
       - name: Check tracked Markdown tables of contents
         shell: bash
