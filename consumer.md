@@ -25,8 +25,8 @@ Use `git rev-parse --show-toplevel` there and the adopted profile to resolve `<f
 never substitute the framework checkout as the consumer. A host denial of root access is a
 blocked capability, not permission to bypass it with another tool.
 
-The selected layout uses a clean pinned submodule at `ai/framework`, a version-1 JSON profile at
-`ai/profile.json` and prose context in `ai/consumer-profile.md`. Those are consumer bindings, not
+The selected layout uses a clean pinned submodule at `ai/framework`, a version-1 or version-2 JSON
+profile at `ai/profile.json` and prose context in `ai/consumer-profile.md`. Those are consumer bindings, not
 paths relative to this source tree. `.gitmodules` owns source/path/branch; the index gitlink is
 the working pin, or the explicitly requested consumer commit's gitlink for commit validation.
 Do not introduce a competing SHA lockfile. Shared bodies remain unmodified in the dependency.
@@ -36,7 +36,12 @@ Profile fields are `version`, `consumer`, `framework_path`, `components`, `guide
 cwd, argv, prerequisites, effects and scope. Never evaluate profile shell text. Resolve paths
 against the declared root, reject escapes/symlinks outside that owner and artifact/source overlap.
 Unknown profile versions, components, missing files/bindings or unavailable tools block dependent
-work. No automatic install, fetch, exclusion repair or alternative command is permitted.
+work. Version 2 may also select one canonical `upstream_ref` such as `refs/tags/v1.2.3` for online
+freshness; the tag name is a ref to verify, while the gitlink remains the sole commit SHA pin.
+Absent that field, versions 1 and 2 verify the configured branch head. A version-1 profile with
+`upstream_ref` is invalid; upgrade the checker and profile together. See the explicit
+[adoption](docs/adoption.md) and [upgrade/rollback](docs/upgrades.md) procedures. No automatic
+install, fetch, exclusion repair or alternative command is permitted.
 Consumer guides own language purpose, topology, application stacks, runtime/tool pins, operational
 runbooks, actual Make/Maven interfaces, business behavior and artifact location/retention.
 

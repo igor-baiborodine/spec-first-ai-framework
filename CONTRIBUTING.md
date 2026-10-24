@@ -5,6 +5,7 @@
   - [Script language choices](#script-language-choices)
   - [Setup](#setup)
   - [Checks and scope](#checks-and-scope)
+  - [Squash releases and publication](#squash-releases-and-publication)
   - [Portable helper interfaces](#portable-helper-interfaces)
   - [License and provenance](#license-and-provenance)
 
@@ -41,11 +42,12 @@ From this checkout root:
 make setup
 make markdown-setup
 make actionlint-setup
+make gh-setup
 ```
 
 Setup downloads the locked packages and creates `.venv`, `node_modules`, or the ignored
-`.tools/actionlint/1.7.12` binary; uv/npm caches can also be written. The actionlint archive is
-checked against the reviewed Linux amd64 SHA-256 before extraction. `uv.lock` and
+`.tools/actionlint/1.7.12` and `.tools/gh/2.103.0` binaries; uv/npm caches can also be written.
+Both archives are checked against their reviewed Linux amd64 SHA-256 before extraction. `uv.lock` and
 `package-lock.json` carry resolved Python/Node versions and artifact hashes.
 Normal checks do not invoke setup, download packages or substitute an interpreter. Dependencies
 are development-only; consumer integrity/freshness/composition use Python's standard library.
@@ -64,6 +66,7 @@ make runtime-check development-check
 make format PYTHON_FILES='tools tests examples/python-testing'
 make format-check lint test-collect test-fast test-integration source-check
 make workflow-check workflow-test
+make gh-check
 make release-test
 make check test-collect
 make markdown-format MARKDOWN_FILES='README.md CONTRIBUTING.md'
@@ -118,6 +121,38 @@ nested `make -f /path/to/framework/Makefile` work. Recursive callers must use `$
 an explicit absolute interpreter if overriding it. Make maps a failed recipe to its own nonzero
 exit (normally 2); direct helper CLIs use 0 success, 1 operational failure, 2 usage error,
 130 interruption and 143 handled termination.
+
+## Squash releases and publication
+
+Use a Conventional Commit title for the pull request and inspect the proposed squash title and
+body in the merge dialog. Keep a `BREAKING CHANGE:` footer in the final body when the change is
+breaking. The PR validation checks title/body inputs; release calculation checks the actual
+commits on main. A valid PR title does not repair a malformed squash commit. This ticket supports
+squash merges only; a maintainer must configure and verify repository merge settings separately.
+
+The single framework version stream starts at `v1.0.0`. Across all commits since the previous
+reachable release, `fix` and `perf` require a patch, `feat` requires a minor, and a breaking marker
+or footer requires a major release, including on another type. The highest required bump wins.
+Nonbreaking docs, chore and test commits alone produce no release. The private package version
+is unrelated to the framework tag. Release notes cover the selected range; a cumulative changelog
+is deferred in the [ledger](docs/nice-to-have-ledger.md).
+
+`Framework Validation` checks PRs and main pushes with read-only contents permission. After a
+successful main-push run, `Framework Release` checks the exact validated SHA and current main,
+then may create its tag and GitHub Release with job-scoped `contents: write`. It does not publish
+from PRs, forks or manual validation. Maintainers own the repository's Actions permissions, merge
+settings and any branch protection; these local files do not prove those settings or hosted event
+behavior. Use the [release workflow](.github/workflows/release.yml) and
+[publisher](tools/release_publish.py) as the implementation contract. The publisher explicitly
+sets the release's `latest` flag to false so a delayed run cannot designate an older release as
+latest; maintainers manage that designation separately.
+
+A rerun of the same completed version/SHA is a no-op. A conflicting tag, missing history, stale
+run, or partial tag-without-release state stops with an error for maintainer inspection. Do not
+force-move the tag or assume a rerun repairs the missing release. Automatic recovery and consumer
+upgrade PRs remain deferred in the [ledger](docs/nice-to-have-ledger.md). Local disposable tests
+and workflow lint do not establish a successful hosted run, actual token permissions, or a live
+release; record those observations separately before claiming them.
 
 ## Portable helper interfaces
 
