@@ -23,6 +23,7 @@ consumers own business behavior, topology, tool/runtime pins, commands, artifact
 - Language entry points: [Go](rules/go/README.md), [Java](rules/java/README.md) and [Python](rules/python/README.md).
   Each language folder contains its focused rules; shared rules remain directly under `rules/`.
 - Components and workflow paths: [catalog.json](catalog.json).
+- Ticket stages, gates and stopping points: [ticket lifecycle](docs/ticket-lifecycle.md).
 - Source lineage and review boundaries: [extraction provenance](provenance/extraction.md).
 - Reusable request examples: [prompts](prompts/README.md).
 - Validation evidence: [evidence](rules/evidence.md) and [client scenarios](checks/client-compatibility.md).

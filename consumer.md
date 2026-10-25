@@ -82,6 +82,9 @@ per surface, never inferred across hosts.
 
 ## Workflow catalog
 
+See the [ticket lifecycle](docs/ticket-lifecycle.md) for the relationships between stages,
+stopping points, readiness gates, validation, and completion.
+
 | Workflow | Requested stage and stopping point |
 | --- | --- |
 | [ticket-requirements-workflow](skills/ticket-requirements-workflow/SKILL.md) | Assess/classify requirements; stop before specification or plan |
