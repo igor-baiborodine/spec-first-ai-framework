@@ -143,9 +143,14 @@ then may create its tag and GitHub Release with job-scoped `contents: write`. It
 from PRs, forks or manual validation. Maintainers own the repository's Actions permissions, merge
 settings and any branch protection; these local files do not prove those settings or hosted event
 behavior. Use the [release workflow](.github/workflows/release.yml) and
-[publisher](tools/release_publish.py) as the implementation contract. The publisher explicitly
-sets the release's `latest` flag to false so a delayed run cannot designate an older release as
-latest; maintainers manage that designation separately.
+[publisher](tools/release_publish.py) as the implementation contract. New releases are automatically
+marked Latest. Before tag and release creation, the publisher requires the candidate version to
+exceed the currently designated Latest version, then rechecks the validated main SHA. It verifies
+the Latest designation after publishing. Serialized workflow execution prevents competing workflow
+runs from replacing a newer release with an older one. Manual release changes are outside that
+serialization boundary; GitHub reads and writes are not atomic, and unexpected readback stops for
+inspection. Completed reruns and non-releasing ranges remain no-ops; they do not relabel existing
+releases, including releases created under the earlier manual-designation policy.
 
 A rerun of the same completed version/SHA is a no-op. A conflicting tag, missing history, stale
 run, or partial tag-without-release state stops with an error for maintainer inspection. Do not
