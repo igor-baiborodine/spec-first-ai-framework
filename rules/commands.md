@@ -51,6 +51,12 @@ missing/unmerged gitlinks, dirty material, missing files and inconsistent source
 Online freshness additionally queries the exact configured upstream ref with a bounded deadline
 and requires exact equality, including detached/shallow consumers. Drift, rewrites, ahead/diverged
 pins, missing ref, timeout or denied access are nonzero; no cached-ref success or auto-repair.
+An optional version-2 profile `upstream_ref` selects a canonical release tag for this query;
+annotated tags resolve to their commit before comparison. Without that selection, the configured
+`.gitmodules` branch remains the checked ref. An explicit missing or invalid tag never falls back
+to the branch. `.gitmodules` still owns the source and branch contract, and the gitlink remains
+the only commit pin. Online tag equality verifies the selected ref at observation time, not remote
+tag immutability or newest-release discovery.
 Checks preserve consumer/submodule files, indexes, refs and pins; disclose scratch requirements.
 Explicit upgrade/rollback uses matching dependency/profile/adapter combinations and preserves
 unrelated edits and older artifacts. Do not force a clean tree to make a check pass.

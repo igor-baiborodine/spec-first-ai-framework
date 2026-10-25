@@ -36,6 +36,10 @@ Arbitrary prose prerequisites still require caller verification. Missing capabil
 only their dependent request. Extra selected language components are not read for unrelated tasks;
 selected house/operations components are returned with core. Optional version-1 `styles` maps
 `java` to `google` or `local`; absence makes no style selection. Unknown styles fail explicitly.
+Profile version 1 keeps branch selection; version 2 permits an optional canonical
+`upstream_ref` such as `refs/tags/v1.2.3`. Version 1 rejects that field, and version 2 without it
+also keeps branch selection. An older checker rejects version 2, so upgrade the framework checker
+with the profile.
 
 Checks reject unknown catalog/profile versions, missing workflows/templates, escaped owner paths,
 artifact/source overlap, conflicting configuration and unsupported task options. Results are JSON
@@ -68,7 +72,13 @@ or transport overrides are rejected. Ignored development outputs are not shared-
 tracked and non-ignored untracked changes, skip-worktree and assume-unchanged flags are blockers.
 
 Freshness adds a bounded `ls-remote` query of the configured source/ref and requires exact equality
-with HEAD/pin. Ahead, behind, rewritten, divergent, unavailable and missing refs are nonzero. No
+with HEAD/pin. Branch mode checks `.gitmodules`' full `refs/heads/` ref. With a version-2
+`upstream_ref`, tag mode checks that exact release tag and compares its commit with HEAD/pin;
+annotated tags are peeled before comparison. The result reports `ref_kind: tag`,
+`configured_branch`, and `tag_object` (the annotated object ID, or `null` for a lightweight tag).
+Offline integrity reports the selected tag without claiming remote verification. A missing,
+invalid, or moved explicit tag fails online without branch fallback. Neither mode discovers the
+newest release. Ahead, behind, rewritten, divergent, unavailable and missing refs are nonzero. No
 cached upstream result substitutes for the query. Integrity/freshness/composition never fetch,
 write indexes/refs, switch checkout, repair exclusions or install tools. They use restrictive
 OS temporary output files and a work deadline of at most 30 seconds, with separate two-second

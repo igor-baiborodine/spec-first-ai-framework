@@ -151,6 +151,13 @@ def advance(state):
     return commit(state["remote"], "advance upstream")
 
 
+def select_tag(state, ref="refs/tags/v1.2.3"):
+    profile_path = state["root"] / "ai/profile.json"
+    profile = json.loads(profile_path.read_text())
+    profile.update(version=2, upstream_ref=ref)
+    profile_path.write_text(json.dumps(profile))
+
+
 @pytest.mark.integration
 def test_detached_equality_and_offline_integrity_are_separate(consumer):
     # given
@@ -212,6 +219,151 @@ def test_remote_drift_never_passes_exact_equality(consumer, change):
     assert result.returncode == 1
     assert "upstream differs: pin=" in result.stderr
     assert "upstream=" in result.stderr
+
+
+@pytest.mark.integration
+@pytest.mark.parametrize("annotated", [False, True])
+def test_selected_release_tag_survives_branch_advance(consumer, annotated):
+    # given: the parent gitlink and clean dependency remain at A while main moves to B.
+    first = consumer["first"]
+    ref = "refs/tags/v1.2.4" if annotated else "refs/tags/v1.2.3"
+    if annotated:
+        git(consumer["remote"], "tag", "-a", "-m", "reviewed release", "v1.2.4", first)
+    else:
+        git(consumer["remote"], "tag", "v1.2.3", first)
+    tag_object = git(consumer["remote"], "rev-parse", ref)
+    assert (tag_object != first) is annotated
+    select_tag(consumer, ref)
+    advance(consumer)
+    # when
+    online = invoke(consumer)
+    offline = invoke(consumer, "integrity")
+    # then
+    assert online.returncode == offline.returncode == 0, online.stderr
+    data = json.loads(online.stdout)
+    assert data["ref"] == ref and data["ref_kind"] == "tag"
+    assert data["configured_branch"] == "refs/heads/main"
+    assert data["pin"] == data["head"] == data["upstream"] == first
+    assert data["tag_object"] == (tag_object if annotated else None)
+    offline_data = json.loads(offline.stdout)
+    assert offline_data["freshness"] == "unverified"
+    assert "upstream" not in offline_data
+    assert "tag_object" not in offline_data
+    assert offline_data["ref"] == ref
+
+
+@pytest.mark.integration
+@pytest.mark.parametrize("defect", ["missing", "moved", "head", "source", "dirty"])
+def test_selected_release_tag_rejects_mismatch_without_repair(consumer, defect):
+    # given
+    first = consumer["first"]
+    second = advance(consumer)
+    git(consumer["remote"], "tag", "v1.2.3", first)
+    select_tag(consumer)
+    if defect == "missing":
+        select_tag(consumer, "refs/tags/v9.9.9")
+    elif defect == "moved":
+        git(consumer["remote"], "tag", "-f", "v1.2.3", second)
+    elif defect == "head":
+        git(consumer["dep"], "fetch", "origin")
+        git(consumer["dep"], "checkout", "--detach", second)
+    elif defect == "source":
+        git(consumer["root"], "config", "submodule.ai/framework.url", "/unapproved")
+    else:
+        (consumer["dep"] / "unexpected.txt").write_text("dirty dependency\n")
+    # when
+    result = invoke(consumer)
+    # then
+    assert result.returncode == 1
+    assert {
+        "missing": "ls-remote failed",
+        "moved": "upstream differs",
+        "head": "HEAD/pin mismatch",
+        "source": "override",
+        "dirty": "changes",
+    }[defect] in result.stderr
+
+
+@pytest.mark.integration
+def test_selected_tag_honors_index_and_explicit_parent_commit(consumer):
+    # given: index pin B, committed pin A, selected release tag B.
+    second = advance(consumer)
+    git(consumer["remote"], "tag", "v1.2.3", second)
+    git(consumer["dep"], "fetch", "origin")
+    git(consumer["dep"], "checkout", "--detach", second)
+    git(consumer["root"], "add", "ai/framework")
+    select_tag(consumer)
+    # when
+    indexed = invoke(consumer)
+    committed = invoke(consumer, "integrity", "--commit", consumer["adopted"])
+    reviewed_parent = commit(consumer["root"], "reviewed tag adoption")
+    selected_commit = invoke(consumer, "freshness", "--commit", reviewed_parent)
+    # then
+    assert indexed.returncode == 0, indexed.stderr
+    data = json.loads(indexed.stdout)
+    assert data["pin"] == second and data["committed_pin"] == consumer["first"]
+    assert data["index_differs_from_committed"] is True
+    assert committed.returncode == 1 and "HEAD/pin mismatch" in committed.stderr
+    assert selected_commit.returncode == 0, selected_commit.stderr
+    selected_data = json.loads(selected_commit.stdout)
+    assert selected_data["selection"] == reviewed_parent
+    assert selected_data["pin"] == selected_data["upstream"] == second
+
+
+@pytest.mark.integration
+@pytest.mark.parametrize(
+    "ref",
+    [None, "", "v1.2.3", "refs/heads/main", "refs/tags/v01.2.3", "refs/tags/v1.2.3^{}"],
+)
+def test_invalid_selected_ref_does_not_fall_back_to_branch(consumer, ref):
+    # given: branch mode would pass, but an explicit invalid selection must fail.
+    select_tag(consumer, ref)
+    # when
+    result = invoke(consumer, "integrity")
+    # then
+    assert result.returncode == 1 and "canonical release tag ref" in result.stderr
+
+
+@pytest.mark.parametrize(
+    "response",
+    [
+        "garbage",
+        f"{'a' * 40}\trefs/tags/v1.2.3^{{}}",
+        f"{'a' * 40}\trefs/tags/v1.2.3\n{'b' * 40}\trefs/tags/other",
+        f"{'a' * 40}\trefs/tags/v1.2.3\n{'a' * 40}\trefs/tags/v1.2.3^{{}}",
+    ],
+)
+def test_malformed_tag_response_is_rejected(response, tmp_path):
+    # given: synthetic malformed remote output, independent of the parser under test.
+    class FakeGit:
+        def run(self, *_args):
+            return response
+
+    # when / then
+    with pytest.raises(checker.CheckError):
+        checker.remote_tag(FakeGit(), tmp_path, "/disposable/source", "refs/tags/v1.2.3")
+
+
+@pytest.mark.integration
+def test_version_one_rejects_tag_field_and_version_two_without_it_keeps_branch_mode(consumer):
+    # given
+    profile_path = consumer["root"] / "ai/profile.json"
+    profile = json.loads(profile_path.read_text())
+    profile["upstream_ref"] = "refs/tags/v1.2.3"
+    profile_path.write_text(json.dumps(profile))
+    # when
+    incompatible = invoke(consumer, "integrity")
+    profile["version"] = 2
+    del profile["upstream_ref"]
+    profile_path.write_text(json.dumps(profile))
+    matching = invoke(consumer)
+    advance(consumer)
+    drifted = invoke(consumer)
+    # then
+    assert incompatible.returncode == 1 and "requires profile version 2" in incompatible.stderr
+    assert matching.returncode == 0, matching.stderr
+    assert "ref_kind" not in json.loads(matching.stdout)
+    assert drifted.returncode == 1 and "upstream differs" in drifted.stderr
 
 
 @pytest.mark.integration
@@ -481,7 +633,7 @@ def test_hidden_worktree_changes_are_not_trusted(consumer, flag):
 @pytest.mark.parametrize(
     "field,value,diagnostic",
     [
-        ("version", 2, "profile version"),
+        ("version", 3, "profile version"),
         ("components", ["core", "unknown"], "unknown selected"),
         ("guides", [], "missing profile"),
         ("conflicts", "silently-override", "stop and report"),
@@ -501,8 +653,11 @@ def test_invalid_profiles_fail_closed(consumer, field, value, diagnostic):
 
 
 @pytest.mark.integration
-def test_full_freshness_timeout_is_non_mutating(consumer, tmp_path, monkeypatch):
+@pytest.mark.parametrize("tag_mode", [False, True])
+def test_full_freshness_timeout_is_non_mutating(consumer, tmp_path, monkeypatch, tag_mode):
     # given
+    if tag_mode:
+        select_tag(consumer)
     real_git = shutil.which("git")
     fake = tmp_path / "bin"
     fake.mkdir()

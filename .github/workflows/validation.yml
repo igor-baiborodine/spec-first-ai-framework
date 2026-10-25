@@ -1,0 +1,57 @@
+name: Framework Validation
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened, edited]
+  push:
+    branches:
+      - main
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    name: Validate framework
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    steps:
+      - name: Check out validated revision with complete history
+        uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+
+      - name: Set up pinned uv
+        uses: astral-sh/setup-uv@07a047e608db84b3d8c06cd9a7c7dcc9c355c18e # v10.3.2
+        with:
+          version: '0.13.1'
+
+      - name: Set up pinned Node
+        uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38 # v6
+        with:
+          node-version: '24.13.0'
+
+      - name: Provision locked validation dependencies
+        run: |
+          make setup
+          make markdown-setup
+          make actionlint-setup
+
+      - name: Check framework source, tooling, workflows, and tests
+        run: make check test-collect
+
+      - name: Validate pull request squash-message inputs
+        if: github.event_name == 'pull_request'
+        run: node tools/release-calculation.mjs validate-pr --event-file "$GITHUB_EVENT_PATH"
+
+      - name: Check tracked Markdown tables of contents
+        shell: bash
+        run: |
+          set -euo pipefail
+          mapfile -d '' -t markdown_files < <(git ls-files -z -- '*.md')
+          if ((${#markdown_files[@]} == 0)); then
+            echo 'No tracked Markdown files selected.' >&2
+            exit 1
+          fi
+          ./scripts/markdown.sh check "${markdown_files[@]}"
