@@ -59,6 +59,8 @@ class FakeGitHub:
         self.releases = {"v1.0.0": {"tag_name": "v1.0.0"}}
         self.writes = []
         self.release_failure = False
+        self.latest = ["v1.0.0"]
+        self.mark_latest = True
 
     def main_commit(self):
         if len(self.main) > 1:
@@ -71,6 +73,11 @@ class FakeGitHub:
     def release(self, tag):
         return self.releases.get(tag)
 
+    def latest_tag(self):
+        if len(self.latest) > 1:
+            return self.latest.pop(0)
+        return self.latest[0]
+
     def create_tag(self, tag, head):
         self.writes.append(("tag", tag, head))
         self.tags[tag] = head
@@ -80,6 +87,8 @@ class FakeGitHub:
         if self.release_failure:
             raise publisher.PublicationError("tag-only partial state; manual intervention required")
         self.releases[tag] = {"tag_name": tag}
+        if self.mark_latest:
+            self.latest = [tag]
 
 
 def test_trusted_main_publishes_one_tag_and_one_release():
@@ -98,6 +107,51 @@ def test_trusted_main_publishes_one_tag_and_one_release():
         ("tag", "v1.0.1", HEAD),
         ("release", "v1.0.1", "v1.0.0", HEAD),
     ]
+    assert github.latest_tag() == "v1.0.1"
+
+
+@pytest.mark.parametrize("latest", ["v1.0.1", "v1.0.2", "v1.10.0", "v2.0.0"])
+def test_latest_equal_or_newer_than_candidate_stops_before_writes(latest):
+    # given
+    github = FakeGitHub()
+    github.latest = [latest]
+    # when / then
+    with pytest.raises(publisher.PublicationError, match="Latest"):
+        publisher.publish(CALCULATION, github, HEAD)
+    assert github.writes == []
+
+
+@pytest.mark.parametrize("latest", [None, "v1.0.0", "v1.9.0"])
+def test_newer_release_becomes_latest_using_numeric_version_order(latest):
+    # given
+    github = FakeGitHub()
+    github.latest = [latest]
+    calculation = {**CALCULATION, "nextTag": "v1.10.0"}
+    # when
+    result = publisher.publish(calculation, github, HEAD)
+    # then
+    assert result["status"] == "published"
+    assert github.latest_tag() == "v1.10.0"
+
+
+def test_latest_advance_before_release_leaves_only_tag_and_stops():
+    # given
+    github = FakeGitHub()
+    github.latest = ["v1.0.0", "v2.0.0"]
+    # when / then
+    with pytest.raises(publisher.PublicationError, match="Latest"):
+        publisher.publish(CALCULATION, github, HEAD)
+    assert github.writes == [("tag", "v1.0.1", HEAD)]
+
+
+def test_latest_readback_failure_reports_uncertainty_without_retry():
+    # given
+    github = FakeGitHub()
+    github.mark_latest = False
+    # when / then
+    with pytest.raises(publisher.PublicationError, match="Latest.*manual"):
+        publisher.publish(CALCULATION, github, HEAD)
+    assert [write[0] for write in github.writes] == ["tag", "release"]
 
 
 @pytest.mark.parametrize(
@@ -144,6 +198,7 @@ def test_complete_rerun_and_nonreleasing_range_make_no_write():
     assert rerun["status"] == "already_published"
     assert no_release["status"] == "no_release"
     assert github.writes == []
+    assert github.latest_tag() == "v1.0.0", "do not silently relabel existing releases on rerun"
 
 
 @pytest.mark.parametrize("case", ["main-before-tag", "main-before-release", "release-failure"])
@@ -329,10 +384,49 @@ def test_gh_adapter_uses_create_ref_and_explicit_notes_and_latest_flags():
     assert json.loads(options["data"]) == {"ref": "refs/tags/v1.0.1", "sha": HEAD}
     release, _, options = runner.calls[1]
     assert release[:4] == ["/disposable/gh", "release", "create", "v1.0.1"]
-    assert {"--verify-tag", "--generate-notes", "--latest=false"} <= set(release)
+    assert {"--verify-tag", "--generate-notes", "--latest"} <= set(release)
+    assert "--latest=false" not in release
     assert release[release.index("--notes-start-tag") + 1] == "v1.0.0"
     assert release[release.index("--target") + 1] == HEAD
     assert options["authenticated"] is True
+
+
+@pytest.mark.parametrize(
+    ("change", "expected"),
+    [
+        ({}, "v1.2.3"),
+        (None, None),
+        ({"tag_name": "not-a-release"}, "invalid release tag identity"),
+        ({"draft": True}, "Latest release state"),
+        ({"prerelease": True}, "Latest release state"),
+        ({"published_at": None}, "Latest release state"),
+    ],
+)
+def test_latest_release_api_validates_public_stable_release(change, expected):
+    # given
+    class FakeRunner:
+        def run(self, argv, _label, **options):
+            assert argv[1:5] == ["api", "--include", "--method", "GET"]
+            assert argv[5] == f"repos/{publisher.REPOSITORY}/releases/latest"
+            assert options["authenticated"] is True
+            if change is None:
+                return 1, 'HTTP/2.0 404 Not Found\r\n\r\n{"message":"Not Found"}'
+            body = {
+                "tag_name": "v1.2.3",
+                "draft": False,
+                "prerelease": False,
+                "published_at": "2026-10-25T00:00:00Z",
+                **change,
+            }
+            return 0, "HTTP/2.0 200 OK\r\n\r\n" + json.dumps(body)
+
+    github = publisher.GitHub(FakeRunner(), Path("/disposable/gh"))
+    # when / then
+    if expected in (None, "v1.2.3"):
+        assert github.latest_tag() == expected
+    else:
+        with pytest.raises(publisher.PublicationError, match=expected):
+            github.latest_tag()
 
 
 def test_annotated_previous_tag_is_peeled_to_its_commit():
@@ -600,6 +694,7 @@ def test_cli_publishes_and_reruns_only_against_fake_github_and_disposable_git(tm
                     }
                 },
                 "writes": [],
+                "latest": "v1.0.0",
             }
         )
     )
@@ -620,6 +715,8 @@ def respond(code, value):
 if args[0] == "api":
     method, endpoint = args[3:5]
     assert endpoint.startswith("repos/igor-baiborodine/spec-first-ai-framework/")
+    if endpoint.endswith("/releases/latest"):
+        respond(200, state["releases"][state["latest"]])
     if endpoint.endswith("/git/ref/heads/main"):
         respond(200, {"ref": "refs/heads/main", "object": {"type": "commit", "sha": state["main"]}})
     if "/git/ref/tags/" in endpoint:
@@ -642,12 +739,14 @@ if args[0] == "api":
     sys.exit(2)
 if args[:2] == ["release", "create"]:
     tag = args[2]
-    assert "--verify-tag" in args and "--generate-notes" in args and "--latest=false" in args
+    assert "--verify-tag" in args and "--generate-notes" in args and "--latest" in args
+    assert "--latest=false" not in args
     assert args[args.index("--notes-start-tag") + 1] == "v1.0.0"
     assert args[args.index("--target") + 1] == state["tags"][tag]
     state["releases"][tag] = {"tag_name": tag, "draft": False, "prerelease": False,
                               "published_at": "2026-10-24T00:00:01Z"}
     state["writes"].append(["release", tag])
+    state["latest"] = tag
     state_file.write_text(json.dumps(state))
     sys.exit(0)
 sys.exit(2)
@@ -709,6 +808,7 @@ sys.exit(2)
     assert first.returncode == second.returncode == 0, first.stderr + second.stderr
     assert json.loads(first.stdout)["status"] == "published"
     assert json.loads(second.stdout)["status"] == "already_published"
+    assert state["latest"] == "v1.0.1"
     assert stale.returncode == 1 and "stale run" in stale.stderr
     assert json.loads(state_file.read_text())["writes"] == [
         ["tag", "v1.0.1", head],

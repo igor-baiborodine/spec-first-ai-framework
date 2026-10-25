@@ -52,7 +52,7 @@ jobs:
           make gh-setup
           make gh-check
 
-      - name: Publish only the validated main revision
+      - name: Publish the validated main revision as Latest
         env:
           GH_TOKEN: ${{ github.token }}
           VALIDATED_SHA: ${{ github.event.workflow_run.head_sha }}

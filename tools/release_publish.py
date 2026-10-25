@@ -305,6 +305,20 @@ class GitHub:
         ):
             raise PublicationError("tag creation response uncertain; inspect remote state manually")
 
+    def latest_tag(self) -> str | None:
+        result = self.api("GET", f"repos/{REPOSITORY}/releases/latest")
+        if result is None:
+            return None
+        tag = valid_tag(result.get("tag_name"))
+        if (
+            result.get("draft") is not False
+            or result.get("prerelease") is not False
+            or not isinstance(result.get("published_at"), str)
+            or not result["published_at"]
+        ):
+            raise PublicationError("Latest release state is unexpected; manual inspection required")
+        return tag
+
     def create_release(self, tag: str, previous: str, head: str) -> None:
         argv = [
             self.executable,
@@ -319,7 +333,7 @@ class GitHub:
             previous,
             "--target",
             head,
-            "--latest=false",
+            "--latest",
         ]
         status, _ = self.runner.run(argv, "release creation", authenticated=True)
         if status != 0:
@@ -356,6 +370,17 @@ def publish(calculation: dict, github: GitHub, head: str) -> dict:
         return {"status": "already_published", "head": head, "tag": candidate}
     if release is not None:
         raise PublicationError("release exists without its tag; manual intervention required")
+
+    def require_newer_than_latest() -> None:
+        latest = github.latest_tag()
+        if latest is not None and tuple(map(int, valid_tag(latest)[1:].split("."))) >= tuple(
+            map(int, candidate[1:].split("."))
+        ):
+            raise PublicationError(
+                "candidate is not newer than the current Latest release; manual inspection required"
+            )
+
+    require_newer_than_latest()
     require_current_main()
     github.create_tag(candidate, head)
     if github.tag_commit(candidate) != head:
@@ -364,10 +389,13 @@ def publish(calculation: dict, github: GitHub, head: str) -> dict:
         )
     if github.release(candidate) is not None:
         raise PublicationError("release appeared during publication; manual intervention required")
+    require_newer_than_latest()
     require_current_main()
     github.create_release(candidate, previous, head)
     if github.tag_commit(candidate) != head or github.release(candidate) is None:
         raise PublicationError("release read-back incomplete; manual intervention required")
+    if github.latest_tag() != candidate:
+        raise PublicationError("Latest release read-back differs; manual inspection required")
     return {"status": "published", "head": head, "tag": candidate, "previous_tag": previous}
 
 
