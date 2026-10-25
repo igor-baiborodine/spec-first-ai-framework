@@ -150,6 +150,10 @@ its state explicitly and record any check-specific input or environment differen
 - Keep the snapshot in the standard `.txt` artifact with the helper's identity header and patch;
   do not create other diff artifacts unless the user asks.
 - Keep the per-step summary concise and factual.
+- When an authorized commit corresponds to the current delivery step, include the ticket ID and
+  unpadded step number in the subject as `[<ticket>][step-<number>]`, following the adopted
+  [commit-message rules](../../rules/git-rules.md#commit-messages). For example, Step 4 of
+  `issue-3` uses `feat: [issue-3][step-4] implement release calculation and squash validation`.
 - Before any commit, inspect the complete proposed change in the working tree, including the
   branch snapshot, staged and unstaged changes, untracked files, and generated files. Apply the
   default end-user review and explicit commit authorization requirement, or an applicable explicit
