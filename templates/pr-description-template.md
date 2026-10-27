@@ -22,6 +22,8 @@ Describe the business and technical outcome of this PR in 1-3 sentences.
   - <Concrete change>
 
 ### Testing Notes
-- **<Status> — <environment>:** <Command or scenario, scope, and result>
-- **<Status> — <environment>:** <Relevant data, fixture, or runtime context>
-- **<Status> — <environment>:** <Constraint, caveat, blocker, or follow-up check>
+| Status / source | Check | Result |
+| --- | --- | --- |
+| `<Status> / <environment>` | `<Command or scenario and scope>` | `<Result>` |
+| `<Status> / <environment>` | `<Check>` | `<Result with relevant data, fixture, or runtime context>` |
+| `<Status> / <environment>` | `<Follow-up check>` | `<Constraint, caveat, or blocker>` |
