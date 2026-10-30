@@ -39,12 +39,13 @@ for (const [message, expected] of [
   ['feat(api): [issue-3] support selection', 'v1.1.0'],
   ['feat(api)!: replace contract', 'v2.0.0'],
   ['chore: change contract\n\nBREAKING CHANGE: consumers must upgrade', 'v2.0.0'],
-  ['docs: clarify release policy', null],
+  ['docs: clarify release policy', 'v1.0.1'],
+  ['docs(ai): update framework rules', 'v1.0.1'],
   ['test: cover release fixture', null],
   ['chore: maintain tooling', null],
   ['feature: alias excluded by ticket policy', null],
   ['revert: excluded by ticket policy', null],
-  ['docs: explain !: marker in prose', null],
+  ['docs: explain !: marker in prose', 'v1.0.1'],
 ]) {
   test(`calculates ${expected ?? 'no release'} for ${message.split('\n')[0]}`, () => fixture((repo) => {
     const head = commit(repo, message);
@@ -55,7 +56,7 @@ for (const [message, expected] of [
   }));
 }
 
-test('highest bump covers the complete range and nonreleasing additions do not increase it', () =>
+test('highest bump covers the complete range and lower-priority additions do not increase it', () =>
   fixture((repo) => {
     commit(repo, 'fix: first squash');
     commit(repo, 'docs: intervening squash');
@@ -97,12 +98,13 @@ test('message and PR input validation detect edited title and breaking footer', 
   assert.equal(JSON.parse(valid.stdout).bump, 'major');
   const eventPath = join(repo, 'event.json');
   writeFileSync(eventPath, JSON.stringify({ pull_request: {
-    title: 'docs: title before edit', body: 'No breaking change',
+    title: 'docs(ai): title before edit', body: 'No breaking change',
   } }));
   const before = spawnSync('node', [script, 'validate-pr', '--event-file', eventPath], {
     encoding: 'utf8', timeout: 10000,
   });
-  assert.equal(JSON.parse(before.stdout).bump, null);
+  assert.equal(before.status, 0, before.stderr);
+  assert.equal(JSON.parse(before.stdout).bump, 'patch');
   writeFileSync(eventPath, JSON.stringify({ pull_request: {
     title: 'feat!: edited title', body: 'BREAKING CHANGE: migrate clients',
   } }));
