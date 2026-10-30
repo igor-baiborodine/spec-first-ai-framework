@@ -7,7 +7,8 @@
 
 # Operations
 
-Apply only to affected deployment, infrastructure, administration or observability boundaries.
+Apply only to affected CI, deployment, infrastructure, administration or observability boundaries.
+For CI configuration, also apply the dedicated [CI workflow rules](ci-workflows.md).
 Read the consumer's change-to-check index and relevant runbooks before selecting commands; concrete
 cluster, namespace, registry, database, GitOps and telemetry identities remain consumer-owned.
 Classify stale source/image, DNS or network state through the owning recovery procedure before

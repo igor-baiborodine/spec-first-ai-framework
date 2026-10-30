@@ -16,6 +16,8 @@ Use before considering a ticket complete.
   synchronization blocks ticket completion.
 - [ ] Ticket artifacts use the same resolved `<ticket-dir>` from
   [Consumer artifact rules](../consumer.md#artifact-rules), with links correct for its nesting depth.
+- [ ] Retained auxiliary delivery outputs are under `<ticket-dir>/aux/`; the ticket root contains
+  only canonical workflow artifacts and preserved historical files.
 - [ ] Delivery tracker is updated.
 - [ ] Step summaries exist for completed steps.
 - [ ] Each step summary has a validation-evidence record for applicable checks, including failed,

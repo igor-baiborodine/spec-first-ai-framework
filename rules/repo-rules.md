@@ -4,7 +4,7 @@
 - [Repository Rules](#repository-rules)
   - [General](#general)
   - [Testability](#testability)
-  - [GitHub Actions](#github-actions)
+  - [CI Workflows](#ci-workflows)
   - [Markdown Tables Of Contents](#markdown-tables-of-contents)
   - [Git And Artifacts](#git-and-artifacts)
   - [Operational Recovery](#operational-recovery)
@@ -42,13 +42,16 @@
   database or transport, does not by itself require a production redesign. Keep that environment
   setup in reusable test infrastructure while preserving realistic boundary coverage.
 
-## GitHub Actions
+## CI Workflows
 
 - Name workflows by scope and purpose in the top-level `name:` field, such as `Go Module
   Validation`, `Go Report Card`, and `Legacy API Release`.
 - Use a concrete purpose instead of appending `CI` solely because a workflow runs in CI.
 - When changing a workflow display name, update badge labels and documentation that refer to it.
   Keep workflow filenames and job identifiers stable unless they also need to change.
+- Apply the dedicated [CI workflow rules](ci-workflows.md) whenever the operations component is
+  selected and CI configuration is created, reviewed or changed. Consumer-owned CI interfaces,
+  provider settings, runner classes, budgets and required-check names remain local bindings.
 
 ## Markdown Tables Of Contents
 

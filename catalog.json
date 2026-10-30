@@ -42,7 +42,8 @@
       "rules/makefile-rules.md"
     ],
     "operations": [
-      "rules/operations.md"
+      "rules/operations.md",
+      "rules/ci-workflows.md"
     ],
     "java": [
       "rules/java/README.md",
