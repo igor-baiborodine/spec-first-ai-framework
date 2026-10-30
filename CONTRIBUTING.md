@@ -131,11 +131,11 @@ commits on main. A valid PR title does not repair a malformed squash commit. Thi
 squash merges only; a maintainer must configure and verify repository merge settings separately.
 
 The single framework version stream starts at `v1.0.0`. Across all commits since the previous
-reachable release, `fix` and `perf` require a patch, `feat` requires a minor, and a breaking marker
-or footer requires a major release, including on another type. The highest required bump wins.
-Nonbreaking docs, chore and test commits alone produce no release. The private package version
-is unrelated to the framework tag. Release notes cover the selected range; a cumulative changelog
-is deferred in the [ledger](docs/nice-to-have-ledger.md).
+reachable release, `fix`, `perf` and `docs` require a patch, `feat` requires a minor, and a breaking
+marker or footer requires a major release, including on another type. The highest required bump
+wins. Nonbreaking chore and test commits alone produce no release. The private package version is
+unrelated to the framework tag. Release notes cover the selected range; a cumulative changelog is
+deferred in the [ledger](docs/nice-to-have-ledger.md).
 
 `Framework Validation` checks PRs and main pushes with read-only contents permission. After a
 successful main-push run, `Framework Release` checks the exact validated SHA and current main,

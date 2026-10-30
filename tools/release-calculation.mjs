@@ -47,7 +47,7 @@ export function classifyMessage(message) {
     return 'major';
   }
   if (parsed.type === 'feat') return 'minor';
-  if (parsed.type === 'fix' || parsed.type === 'perf') return 'patch';
+  if (parsed.type === 'fix' || parsed.type === 'perf' || parsed.type === 'docs') return 'patch';
   return null;
 }
 
