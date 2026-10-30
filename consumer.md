@@ -114,6 +114,17 @@ win. Do not infer epic membership from an issue number. Retain `<ticket>-` filen
 resolve links from the actual depth. Keep all task records together. Multi-PR reviews/descriptions
 use `<ticket>-pr<n>-review.md` and `<ticket>-pr<n>-description.md`; single-PR names omit the number.
 
+Keep canonical workflow artifacts directly in `<ticket-dir>`: requirements, ticket content,
+delivery steps, step summaries, the standard git diff snapshot, reviews and PR descriptions.
+During delivery-step execution, put every retained ticket-scoped auxiliary output under
+`<ticket-dir>/aux/`, including logs, JSON/XML reports, state captures, bundles and other secondary
+evidence. Use step-prefixed filenames or step subdirectories when that improves traceability, and
+link the auxiliary output from the owning step summary. Direct commands to this location when the
+output is created; do not first pollute the ticket root and move it later. Tool-managed disposable
+caches outside the artifact root are not ticket artifacts, but any output retained as ticket
+evidence belongs in `aux/`. Preserve historical layouts in place; this rule does not authorize
+moving or deleting existing artifacts.
+
 Before any artifact write, verify the intended path is ignored, the exact adopted artifact-root
 entry exists in checkout-local `.git/info/exclude`, and no artifact paths are indexed. At completion
 and before commit also verify no staged artifact paths. Use the consumer-owned preflight binding;

@@ -28,7 +28,7 @@ Use this skill only after a concrete delivery step has been completed.
 
 - Ticket ID, for example `issue-45`
 - `<ticket-dir>` resolved using [Consumer artifact rules](../../consumer.md#artifact-rules)
-- Current step number
+- Current step identifier
 - Current branch name
 - Intended PR base ref from the delivery plan or actual PR target
 - Short step summary or title
@@ -46,7 +46,9 @@ artifact preflight before writing. Perform these actions in order:
      and validation results in the per-step summary instead
 
 2. Create the per-step markdown summary:
-   - `<ticket-dir>/<ticket>-step-<nn>-<summary>.md`
+   - `<ticket-dir>/<ticket>-step-<step-id>-<summary>.md`
+   - zero-pad the numeric portion to two digits and preserve an uppercase insertion suffix: Step 4
+     uses `04`, Step 7A uses `07A`
    - include what changed or was inspected
    - include key decisions
    - include blockers or follow-up for the next step
@@ -62,6 +64,8 @@ artifact preflight before writing. Perform these actions in order:
      provenance visible; a generated replacement is not its own oracle
    - capture each check's tested state when it runs; a state reconstructed after later edits is
      unverified, even if the command's historical result is known
+   - link any retained logs, JSON/XML results, state captures, bundles or other secondary evidence
+     from `<ticket-dir>/aux/`; do not place those auxiliary files in the ticket root
 
 3. Refresh the git diff artifact:
    - Select the intended PR base from the delivery plan or actual PR target; for a stacked PR,
@@ -145,15 +149,18 @@ its state explicitly and record any check-specific input or environment differen
   its expected result, and its actual observation. Do not treat an aggregate check as covering
   packages or modules its evidence does not show.
 
-- Write ticket artifacts only under the resolved `<ticket-dir>`.
+- Write ticket artifacts only under the resolved `<ticket-dir>`. Keep canonical artifacts in its
+  root and retained auxiliary delivery outputs under `<ticket-dir>/aux/`.
 - Do not create extra documentation files beyond the tracker and per-step summary unless the user asks.
 - Keep the snapshot in the standard `.txt` artifact with the helper's identity header and patch;
   do not create other diff artifacts unless the user asks.
 - Keep the per-step summary concise and factual.
 - When an authorized commit corresponds to the current delivery step, include the ticket ID and
-  unpadded step number in the subject as `[<ticket>][step-<number>]`, following the adopted
+  step identifier with an unpadded numeric portion in the subject as
+  `[<ticket>][step-<identifier>]`, following the adopted
   [commit-message rules](../../rules/git-rules.md#commit-messages). For example, Step 4 of
-  `issue-3` uses `feat: [issue-3][step-4] implement release calculation and squash validation`.
+  `issue-3` uses `feat: [issue-3][step-4] implement release calculation and squash validation`;
+  inserted Step 7A uses `[issue-3][step-7A]`.
 - Before any commit, inspect the complete proposed change in the working tree, including the
   branch snapshot, staged and unstaged changes, untracked files, and generated files. Apply the
   default end-user review and explicit commit authorization requirement, or an applicable explicit
@@ -164,5 +171,5 @@ its state explicitly and record any check-specific input or environment differen
 Before finishing the turn, confirm that all of the following exist or were updated:
 
 - `<ticket-dir>/<ticket>-delivery-steps.md`
-- `<ticket-dir>/<ticket>-step-<nn>-<summary>.md`
+- `<ticket-dir>/<ticket>-step-<step-id>-<summary>.md`
 - `<ticket-dir>/<ticket>-git-diff.txt`

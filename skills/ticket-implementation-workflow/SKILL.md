@@ -120,6 +120,12 @@ Once the ticket is implementation-ready:
   applicable, and the step summary artifact reference; keep implementation details, findings,
   decisions, and validation results in the dedicated step execution summary document
 - identify module boundaries, tests, and validation checkpoints
+- assign stable integer step identifiers when the plan is first established; after that, never
+  renumber an existing step merely to insert work. Insert new work between integer steps by
+  suffixing the preceding integer with uppercase letters in execution order: steps inserted
+  between 7 and 8 are `7A`, `7B`, and so on. Append ordinary new work after the last established
+  integer with the next integer. Record why an inserted step is required and update dependencies,
+  PR allocation and acceptance mappings without changing existing identifiers
 - assign each behavior example/check from the specification to a delivery step; identify the
   expected failure under a relevant behavior mutation and any property or differential check that
   gives stronger coverage of a sensitive invariant
@@ -154,6 +160,10 @@ For each step:
   end user before editing. Inspect those changes and preserve them. If they overlap planned files or
   make ownership/scope unclear, resolve that with the user before proceeding.
 - read the relevant local code before changing anything
+- direct retained ticket-scoped auxiliary outputs produced by the step to `<ticket-dir>/aux/` as
+  required by [Consumer artifact rules](../../consumer.md#artifact-rules). This includes logs,
+  JSON/XML results, state captures, bundles and similar secondary evidence. Keep canonical ticket
+  artifacts in the ticket root and reference retained auxiliary evidence from the step summary
 - implement against the ticket-content specification and record agreed requirement changes there before adjusting the plan
 - after any ticket-content revision, apply the synchronization rule before dependent work;
   prepare the GitHub update and obtain explicit permission unless existing authorization covers it
@@ -190,6 +200,8 @@ Before considering the ticket workflow complete, ensure:
 - ticket readiness was explicitly validated
 - the delivery-step plan artifact exists
 - each completed step has a matching summary artifact
+- retained auxiliary delivery outputs are under `<ticket-dir>/aux/`, with no new secondary files
+  left in the ticket root
 - each step summary records applicable validation with the shared evidence format and each
   acceptance criterion maps to evidence or is identified as unresolved
 - passed checks used for completion are current for the final code and specification, or have a

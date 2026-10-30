@@ -54,6 +54,12 @@ dedicated step execution summary.
 ## Steps
 
 For multi-PR delivery, mark every step heading with `PR1`, `PR2`, and so on.
+Assign integer step identifiers when the plan is established and keep them stable. If work must be
+inserted between established integer steps, suffix the preceding integer with uppercase letters in
+execution order (`7A`, `7B` between Steps 7 and 8) and record why the insertion is needed. Use the
+same identifier in Progress and in the step summary filename, with a zero-padded numeric portion
+(`step-07A`). Put retained logs, JSON/XML results, state captures, bundles and other secondary
+delivery evidence under `<ticket-dir>/aux/` and link it from the owning step summary.
 
 ### Step 1: <Title> <PR1 when applicable>
 
@@ -63,6 +69,7 @@ For multi-PR delivery, mark every step heading with `PR1`, `PR2`, and so on.
 - Acceptance examples/check IDs: [Assign applicable specification examples to this step and name
   the expected failure for a relevant behavior mutation; note property/differential checks when useful.]
 - Artifact:
+- Planned auxiliary evidence: `<ticket-dir>/aux/<step-prefixed-path>` / None
 
 ## Decisions
 

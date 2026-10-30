@@ -93,8 +93,10 @@ When the commit corresponds to a specific delivery step, use:
 - Include the lowercase issue reference when the commit relates to a ticket. The square brackets
   are literal, as in `[issue-123]`. Omit the entire reference when there is no ticket.
 - Append the lowercase delivery-step reference immediately after the issue reference when the
-  commit corresponds to one numbered step in the delivery plan. Use the step number without
-  leading zeros, as in `[issue-123][step-4]`, even though artifact filenames use `step-04`.
+  commit corresponds to one step in the delivery plan. Use the step identifier without a leading
+  zero in its numeric portion, as in `[issue-123][step-4]` or `[issue-123][step-7A]`, even though
+  artifact filenames use `step-04` or `step-07A`. Preserve the uppercase suffix assigned to an
+  inserted step.
   Omit the step reference when the commit does not correspond to one specific delivery step.
 - Write a concise description in imperative mood, such as `add logging support`.
 - Use lowercase prose and omit the final period. Preserve the correct case of names and identifiers
@@ -107,6 +109,7 @@ Examples:
 
 - `feat: [issue-12] add new user login endpoint`
 - `feat: [issue-3][step-4] implement release calculation and squash validation`
+- `fix(ci): [issue-3][step-7A] restore release validation dependency`
 - `fix: handle null pointer on empty request`
 - `docs(ai): [issue-174] update repository rules`
 - `chore: update dependencies to latest versions`
