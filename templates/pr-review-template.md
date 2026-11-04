@@ -24,6 +24,8 @@
 - Working tree: <local mode: clean or staged, unstaged, and untracked paths; published mode: local
   state excluded from published-revision claims>
 - Ticket: <ticket-id>
+- Formal merge gate: <Not applicable / current and clean / blocked by finding dispositions or stale
+  identity>
 
 ## Findings
 
@@ -37,6 +39,8 @@ identified** and do not invent positive findings.
   Expected: <required behavior>
   Recommendation: <specific correction or direction>
   Evidence: <ticket criterion, repository rule, source contract, test, or established code pattern>
+  Maintainer disposition: <Pending / decision, maintainer source, and time; required at every
+  severity for a formal merge gate>
 
 ## Open Questions
 
@@ -50,6 +54,10 @@ identified** and do not invent positive findings.
   observed evidence; mutation sensitivity or the unverified gap. Give a reason when a category
   does not apply.>
 - Source and contracts: <relevant implementation, callers, schemas, or migrations inspected>
+- Release identity, when applicable: <producer and observation commands; full source revision;
+  derived build version; image tag/reference and digest-qualified identity; mapped
+  OCI/Kubernetes/runtime values; placeholder result; scoped exceptions; or concrete reason this is
+  not applicable>
 - Tests and validation: <per-check result status, execution source, and freshness for the reviewed
   code/specification; identify stale or identity-incomplete historical results and
   failed/blocked/not-run checks. Use “No execution evidence reviewed” when appropriate. Do not

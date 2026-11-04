@@ -115,11 +115,18 @@ Once the ticket is implementation-ready:
   pull request as `PR1`, `PR2`, and so on, identify ordering or dependency constraints, and use
   the corresponding `-1`, `-2`, and later suffixes for new PR branches as required by
   [Git branch rules](../../rules/git-rules.md#branch-names)
+- record each whole-PR title using
+  [Pull Request Titles](../../rules/git-rules.md#pull-request-titles), including `PR1` for a single
+  PR; the title summarizes all assigned steps and contains no step reference
 - make the steps granular enough to track progress and validate behavior incrementally
 - include a progress section containing only step status, step title, planned pull request when
   applicable, and the step summary artifact reference; keep implementation details, findings,
   decisions, and validation results in the dedicated step execution summary document
 - identify module boundaries, tests, and validation checkpoints
+- for an applicable build, release, image, deployment or runtime-version change, plan the producer,
+  propagation, placeholder rejection and verification required by the
+  [release identity rules](../../rules/release-identity-rules.md); identify the exact command and
+  evidence source for the full revision, build version, tag and registry digest
 - assign stable integer step identifiers when the plan is first established; after that, never
   renumber an existing step merely to insert work. Insert new work between integer steps by
   suffixing the preceding integer with uppercase letters in execution order: steps inserted
@@ -181,6 +188,12 @@ For each step:
   recheck its freshness after later edits before marking the step complete
 - For operational failures, use the consumer-owned recovery runbook before classifying stale
   source/image or network state as a repository defect.
+
+Authorized pull request creation or merge is a separately scoped operation. Route creation through
+the whole-PR title rule. Route merge through
+[Authorized Pull Request Merge](../../rules/git-rules.md#authorized-pull-request-merge), including
+the exact published-revision review, all-findings maintainer gate, squash-only message read-back and
+stacked-successor handoff. Do not infer these authorizations from implementation work.
 
 ### 4. Apply Post-Step Workflow
 

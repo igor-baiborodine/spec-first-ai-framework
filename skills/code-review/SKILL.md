@@ -62,6 +62,10 @@ Assess only areas relevant to the ticket and proposed change:
    cleanup, secret protection, permissions, and dry-run boundaries.
 6. Check security, privacy, persistence, migration, deployment, telemetry, and operational impact
    when the changed paths or requirements make them applicable.
+   For a build, release, image, deployment or runtime-version boundary, compare the observed
+   source/build/tag/digest chain and mapped surfaces with the
+   [release identity rules](../../rules/release-identity-rules.md). Treat a placeholder, mismatch,
+   or tag-only immutable-image claim as a finding.
 7. Report maintainability concerns only when they violate a repository rule or create a concrete
    defect or meaningful maintenance risk.
 
@@ -101,6 +105,12 @@ Use these severity meanings, adapting their labels to the review host:
 
 If no issues are found, say so directly and still identify material unverified areas. Never invent a
 positive observation or low-value comment to ensure the review contains findings.
+
+For a formal pre-merge review, record maintainer disposition separately for every finding at every
+severity. Pending disposition remains a merge blocker even if the agent later fixes the finding;
+the fix also needs a current review of the exact published revision. A no-findings review has no
+synthetic disposition requirement. This workflow reports the gate and remains review-only; it does
+not grant or execute a merge.
 
 Do not edit production code, tests, contracts, generated files, or application configuration during
 the review. Do not stage, commit, publish, merge, deploy, or mutate application data. Never include

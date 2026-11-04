@@ -551,6 +551,29 @@ def test_source_defects_are_detected(tmp_path):
         checker.source_check(tmp_path)
 
 
+def test_source_files_exclude_local_ticket_artifacts(tmp_path):
+    # given: consumer-specific ticket evidence beside one shared source file.
+    from source_check import source_files
+
+    shared = tmp_path / "rules/core.md"
+    shared.parent.mkdir(parents=True)
+    shared.write_text("# Shared rule\n")
+    ordinary_artifacts = tmp_path / "examples/artifacts/example.md"
+    ordinary_artifacts.parent.mkdir(parents=True)
+    ordinary_artifacts.write_text("# Shared example artifact\n")
+    artifact = tmp_path / "ai/artifacts/issue-10/issue-10-ticket-content.md"
+    artifact.parent.mkdir(parents=True)
+    artifact.write_text("# Phase 4 consumer ticket\n")
+
+    # when
+    selected = source_files(tmp_path, "*.md")
+
+    # then: ticket-local evidence is not shared framework source, while real rules remain checked.
+    assert shared in selected
+    assert ordinary_artifacts in selected
+    assert artifact not in selected
+
+
 def test_import_has_no_process_or_filesystem_side_effects(tmp_path):
     # given
     before = tree_manifest(tmp_path)

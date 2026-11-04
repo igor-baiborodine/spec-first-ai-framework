@@ -4,7 +4,7 @@ import { mkdtempSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import test from 'node:test';
-import { calculate, classifyMessage } from '../tools/release-calculation.mjs';
+import { calculate, classifyMessage, classifyPlannedPrTitle } from '../tools/release-calculation.mjs';
 
 function git(repo, ...args) {
   const result = spawnSync('git', ['-C', repo, ...args], { encoding: 'utf8', timeout: 10000 });
@@ -86,8 +86,8 @@ test('framework version ignores the private package version', () => fixture((rep
   assert.equal(calculate(repo, head).nextTag, 'v1.0.1');
 }));
 
-test('message and PR input validation detect edited title and breaking footer', () => fixture((repo) => {
-  const message = 'feat(api): [issue-3] add tag mode\n\nBREAKING CHANGE: migrate the profile';
+test('message and PR input validation enforce exact title-only planned squash input', () => fixture((repo) => {
+  const message = 'feat(api)!: [issue-3] add tag mode - PR1';
   const messagePath = join(repo, 'squash.txt');
   writeFileSync(messagePath, message);
   const script = new URL('../tools/release-calculation.mjs', import.meta.url).pathname;
@@ -98,7 +98,7 @@ test('message and PR input validation detect edited title and breaking footer', 
   assert.equal(JSON.parse(valid.stdout).bump, 'major');
   const eventPath = join(repo, 'event.json');
   writeFileSync(eventPath, JSON.stringify({ pull_request: {
-    title: 'docs(ai): title before edit', body: 'No breaking change',
+    title: 'docs(ai): [issue-3] title before edit - PR2', body: 'No breaking change',
   } }));
   const before = spawnSync('node', [script, 'validate-pr', '--event-file', eventPath], {
     encoding: 'utf8', timeout: 10000,
@@ -106,19 +106,62 @@ test('message and PR input validation detect edited title and breaking footer', 
   assert.equal(before.status, 0, before.stderr);
   assert.equal(JSON.parse(before.stdout).bump, 'patch');
   writeFileSync(eventPath, JSON.stringify({ pull_request: {
-    title: 'feat!: edited title', body: 'BREAKING CHANGE: migrate clients',
+    title: 'feat!: edited title - PR1', body: 'Migration: clients must update.',
   } }));
   const after = spawnSync('node', [script, 'validate-pr', '--event-file', eventPath], {
     encoding: 'utf8', timeout: 10000,
   });
   assert.equal(after.status, 0, after.stderr);
   assert.equal(JSON.parse(after.stdout).bump, 'major');
-  writeFileSync(eventPath, JSON.stringify({ pull_request: { title: 'invalid title', body: '' } }));
+  writeFileSync(eventPath, JSON.stringify({ pull_request: {
+    title: 'feat: [issue-3] body-only breaking - PR1',
+    body: 'BREAKING CHANGE: migrate clients',
+  } }));
   const invalid = spawnSync('node', [script, 'validate-pr', '--event-file', eventPath], {
     encoding: 'utf8', timeout: 10000,
   });
   assert.equal(invalid.status, 1);
 }));
+
+test('planned PR title validation covers issue, ad hoc, step, suffix, and whole-purpose syntax', () => {
+  assert.equal(
+    classifyPlannedPrTitle(
+      'chore(policy-search): [issue-235] quiesce Java consumers - PR4',
+    ),
+    null,
+  );
+  assert.equal(classifyPlannedPrTitle('fix!: replace compatibility contract - PR1'), 'major');
+  for (const title of [
+    'feat(ai): [issue-10][step-2] add release identity - PR1',
+    'feat(ai): [issue-10][STEP-2] add release identity - PR1',
+    'feat(ai): [STEP-2] add release identity - PR1',
+    'feat(ai): [issue-0] add release identity - PR1',
+    'feat(ai): [Issue-10] add release identity - PR1',
+    'feat(ai): explain [issue-10] compatibility - PR1',
+    'feat(ai): [issue-10] add release identity',
+    'feat(ai): [issue-10] add release identity - PR0',
+    'feat(ai): [issue-10] add release identity - PR999 (#44)',
+  ]) {
+    assert.throws(() => classifyPlannedPrTitle(title));
+  }
+});
+
+test('proposed squash validation rejects a body while historical calculation keeps footer support', () =>
+  fixture((repo) => {
+    const script = new URL('../tools/release-calculation.mjs', import.meta.url).pathname;
+    const messagePath = join(repo, 'squash.txt');
+    writeFileSync(
+      messagePath,
+      'feat: [issue-3] add tag mode - PR1\n\nBREAKING CHANGE: migrate the profile',
+    );
+    const proposed = spawnSync(
+      'node', [script, 'validate-message', '--message-file', messagePath],
+      { encoding: 'utf8', timeout: 10000 },
+    );
+    assert.equal(proposed.status, 1);
+    const head = commit(repo, 'chore: historical change\n\nBREAKING CHANGE: migrate the profile');
+    assert.equal(calculate(repo, head).nextTag, 'v2.0.0');
+  }));
 
 test('malformed messages fail rather than becoming no-release', () => fixture((repo) => {
   for (const message of ['not conventional', 'feat: ', 'fix: valid\n\nBREAKING CHANGE:']) {

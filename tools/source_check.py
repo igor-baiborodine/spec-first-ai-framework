@@ -22,10 +22,17 @@ SKILLS = {
 }
 TEMPLATES = {"requirements", "ticket-content", "delivery-steps", "pr-review", "pr-description"}
 IGNORED = {".git", ".venv", ".tools", "node_modules", "__pycache__", ".pytest_cache", ".ruff_cache"}
+LOCAL_ARTIFACT_ROOT = ("ai", "artifacts")
 
 
 def source_files(root: Path, pattern: str) -> list[Path]:
-    return [p for p in root.rglob(pattern) if not set(p.relative_to(root).parts) & IGNORED]
+    result = []
+    for path in root.rglob(pattern):
+        parts = path.relative_to(root).parts
+        if set(parts) & IGNORED or parts[: len(LOCAL_ARTIFACT_ROOT)] == LOCAL_ARTIFACT_ROOT:
+            continue
+        result.append(path)
+    return result
 
 
 def anchors(body: str) -> set[str]:

@@ -10,6 +10,7 @@ const parser = new CommitParser(createPreset().parser);
 const releaseTag = /^v(?:0|[1-9]\d*)\.(?:0|[1-9]\d*)\.(?:0|[1-9]\d*)$/u;
 const headerPattern = /^[a-z][a-z0-9-]*(?:\([a-z0-9-]+\))?!?: \S.*$/u;
 const fullSha = /^[0-9a-f]{40}(?:[0-9a-f]{24})?$/u;
+const plannedPrTitle = /^(?:feat|fix|docs|style|refactor|perf|test|chore)(?:\([a-z0-9-]+\))?!?: (?:\[issue-[1-9]\d*\] )?(\S(?:.*\S)?) - PR[1-9]\d*$/u;
 
 function git(repo, ...args) {
   const result = spawnSync('git', ['-C', repo, ...args], {
@@ -49,6 +50,22 @@ export function classifyMessage(message) {
   if (parsed.type === 'feat') return 'minor';
   if (parsed.type === 'fix' || parsed.type === 'perf' || parsed.type === 'docs') return 'patch';
   return null;
+}
+
+export function classifyPlannedPrTitle(title, body = '') {
+  if (typeof title !== 'string' || typeof body !== 'string') {
+    throw new Error('Pull request title/body unavailable');
+  }
+  const match = plannedPrTitle.exec(title);
+  const purpose = match?.[1] ?? '';
+  if (!match || /\[step-/iu.test(title) || /\[issue-/iu.test(purpose)) {
+    throw new Error('Pull request title does not follow the planned whole-PR format');
+  }
+  const hasBreakingMarker = /^(?:feat|fix|docs|style|refactor|perf|test|chore)(?:\([a-z0-9-]+\))?!:/u.test(title);
+  if (/^BREAKING(?: CHANGE|-CHANGE):/mu.test(body) && !hasBreakingMarker) {
+    throw new Error('Breaking pull request must use ! in the title');
+  }
+  return classifyMessage(title);
 }
 
 export function calculate(repo, head) {
@@ -109,7 +126,9 @@ function main(args) {
   }
   if (mode === 'validate-message') {
     if (args.length !== 3) throw new Error('Usage: validate-message --message-file PATH');
-    const bump = classifyMessage(readFileSync(option(args, '--message-file'), 'utf8'));
+    const message = readFileSync(option(args, '--message-file'), 'utf8').replace(/\r?\n$/u, '');
+    if (message.includes('\n')) throw new Error('Proposed squash message body must be empty');
+    const bump = classifyPlannedPrTitle(message);
     return { valid: true, bump };
   }
   if (mode === 'validate-pr') {
@@ -117,10 +136,7 @@ function main(args) {
     const event = JSON.parse(readFileSync(option(args, '--event-file'), 'utf8'));
     const title = event.pull_request?.title;
     const body = event.pull_request?.body ?? '';
-    if (typeof title !== 'string' || typeof body !== 'string') {
-      throw new Error('Pull request title/body unavailable');
-    }
-    return { valid: true, bump: classifyMessage(`${title}\n\n${body}`) };
+    return { valid: true, bump: classifyPlannedPrTitle(title, body) };
   }
   throw new Error('Usage: calculate|validate-message|validate-pr');
 }

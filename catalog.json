@@ -43,6 +43,7 @@
     ],
     "operations": [
       "rules/operations.md",
+      "rules/release-identity-rules.md",
       "rules/ci-workflows.md"
     ],
     "java": [

@@ -32,6 +32,9 @@ the ticket ID.
 
 1. Read the complete ticket specification and shared PR template. Read the delivery tracker and
    completed step summaries to understand delivered scope and recorded validation.
+   Derive the proposed whole-PR title from the assigned steps and
+   [Pull Request Titles](../../../rules/git-rules.md#pull-request-titles); do not copy a step-specific
+   commit subject.
 2. Identify the intended PR base from the delivery plan or actual PR target. Read
    `<ticket-dir>/<ticket>-git-diff.txt` and check its base/head SHAs against the selected base
    and current branch. If missing or stale, refresh it with

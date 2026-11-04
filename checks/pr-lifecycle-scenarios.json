@@ -1,0 +1,160 @@
+[
+  {
+    "id": "clean-current-review",
+    "kind": "merge-gate",
+    "merge_authorized": true,
+    "squash_enabled": true,
+    "review_present": true,
+    "review_current": true,
+    "checks_pass": true,
+    "findings": [],
+    "expected": "ready"
+  },
+  {
+    "id": "high-pending",
+    "kind": "merge-gate",
+    "merge_authorized": true,
+    "squash_enabled": true,
+    "review_present": true,
+    "review_current": true,
+    "checks_pass": true,
+    "findings": [{"severity": "high", "maintainer_disposition": false}],
+    "expected": "blocked"
+  },
+  {
+    "id": "medium-pending",
+    "kind": "merge-gate",
+    "merge_authorized": true,
+    "squash_enabled": true,
+    "review_present": true,
+    "review_current": true,
+    "checks_pass": true,
+    "findings": [{"severity": "medium", "maintainer_disposition": false}],
+    "expected": "blocked"
+  },
+  {
+    "id": "low-agent-fixed-without-disposition",
+    "kind": "merge-gate",
+    "merge_authorized": true,
+    "squash_enabled": true,
+    "review_present": true,
+    "review_current": true,
+    "checks_pass": true,
+    "findings": [
+      {"severity": "low", "agent_fixed": true, "maintainer_disposition": false}
+    ],
+    "expected": "blocked"
+  },
+  {
+    "id": "all-severities-disposed",
+    "kind": "merge-gate",
+    "merge_authorized": true,
+    "squash_enabled": true,
+    "review_present": true,
+    "review_current": true,
+    "checks_pass": true,
+    "findings": [
+      {"severity": "high", "maintainer_disposition": true},
+      {"severity": "medium", "maintainer_disposition": true},
+      {"severity": "low", "maintainer_disposition": true}
+    ],
+    "expected": "ready"
+  },
+  {
+    "id": "stale-review",
+    "kind": "merge-gate",
+    "merge_authorized": true,
+    "squash_enabled": true,
+    "review_present": true,
+    "review_current": false,
+    "checks_pass": true,
+    "findings": [],
+    "expected": "blocked"
+  },
+  {
+    "id": "squash-disabled",
+    "kind": "merge-gate",
+    "merge_authorized": true,
+    "squash_enabled": false,
+    "review_present": true,
+    "review_current": true,
+    "checks_pass": true,
+    "findings": [],
+    "expected": "blocked"
+  },
+  {
+    "id": "exact-message",
+    "kind": "merge-result",
+    "merge_succeeded": true,
+    "subject_matches_title": true,
+    "body_empty": true,
+    "expected": "complete"
+  },
+  {
+    "id": "message-suffix",
+    "kind": "merge-result",
+    "merge_succeeded": true,
+    "subject_matches_title": false,
+    "body_empty": true,
+    "expected": "failed"
+  },
+  {
+    "id": "message-body",
+    "kind": "merge-result",
+    "merge_succeeded": true,
+    "subject_matches_title": true,
+    "body_empty": false,
+    "expected": "failed"
+  },
+  {
+    "id": "failed-merge-no-retarget",
+    "kind": "successor",
+    "merge_succeeded": false,
+    "successor_exists": true,
+    "retarget_succeeded": false,
+    "base_main": false,
+    "parent_diff_absent": false,
+    "checks_inspected": false,
+    "expected": "not-started"
+  },
+  {
+    "id": "successor-retargeted",
+    "kind": "successor",
+    "merge_succeeded": true,
+    "successor_exists": true,
+    "retarget_succeeded": true,
+    "base_main": true,
+    "parent_diff_absent": true,
+    "checks_inspected": true,
+    "expected": "complete"
+  },
+  {
+    "id": "retarget-failed",
+    "kind": "successor",
+    "merge_succeeded": true,
+    "successor_exists": true,
+    "retarget_succeeded": false,
+    "base_main": false,
+    "parent_diff_absent": false,
+    "checks_inspected": false,
+    "expected": "incomplete"
+  },
+  {
+    "id": "parent-diff-duplicated",
+    "kind": "successor",
+    "merge_succeeded": true,
+    "successor_exists": true,
+    "retarget_succeeded": true,
+    "base_main": true,
+    "parent_diff_absent": false,
+    "checks_inspected": true,
+    "expected": "incomplete"
+  },
+  {
+    "id": "no-successor",
+    "kind": "successor",
+    "merge_succeeded": true,
+    "successor_exists": false,
+    "expected": "no-successor"
+  }
+]

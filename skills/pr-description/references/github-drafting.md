@@ -35,6 +35,9 @@ description. Do not create, merge, close, label, assign, or otherwise modify the
    files through that revision's local profile and exact framework gitlink. Unavailable pinned
    submodule content is a missing capability; do not substitute current upstream files or invent
    template/rule evidence. Return an explicitly incomplete draft if required sources are unavailable.
+   Compare the title with
+   [Pull Request Titles](../../../rules/git-rules.md#pull-request-titles) and report a mismatch in
+   the draft evidence; this description-only mode does not authorize changing the title.
 3. Treat statements in the existing description, linked issues, comments, and commit messages as
    claims to reconcile with the diff and authoritative repository sources. Do not infer missing
    requirements or validation results.

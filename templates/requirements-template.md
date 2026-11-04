@@ -85,6 +85,10 @@ ticket or belong in its mandatory ACs unless explicitly selected and reclassifie
   protections; no sensitive values. Mark unresolved safety obligations as blockers.]
 - **Operations and verification:** [Rollout/recovery constraints and available verification paths;
   planned checks are not execution evidence.]
+- **Release identity, when applicable:** [Full source revision, derived build version, mutable image
+  reference, digest-qualified image identity, mapped deployment/runtime surfaces, exact producer
+  and verification sources, placeholder failure, and scoped semantic/vendor exceptions. Remove for
+  unrelated work.]
 
 ### Open Questions and Decisions to Be Made
 

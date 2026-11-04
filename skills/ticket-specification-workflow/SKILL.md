@@ -72,6 +72,10 @@ artifact directory. Preserve the assessment's in-scope and out-of-scope boundari
   replacement implementation. If a case cannot be automated, explain the manual route rather than
   presenting it as a passing test. Do not require executable business examples for routine
   documentation-only changes.
+- For an applicable build, release, image, deployment or runtime-version boundary, carry the
+  [release identity contract](../../rules/release-identity-rules.md) into observable ACs and Dev
+  Notes. Name exact producer commands, mapped surfaces, digest verification, placeholder failure
+  and any scoped semantic/vendor exception. Omit this contract when the work is unrelated.
 - For substantial contract, persistence, or architecture choices, record a short design challenge
   in Dev Notes: alternatives and tradeoffs, failure modes, migration impact, and why the selected
   design meets the ACs. Leave unresolved choices as bounded decision gates; a shared architecture
