@@ -10,7 +10,7 @@ const parser = new CommitParser(createPreset().parser);
 const releaseTag = /^v(?:0|[1-9]\d*)\.(?:0|[1-9]\d*)\.(?:0|[1-9]\d*)$/u;
 const headerPattern = /^[a-z][a-z0-9-]*(?:\([a-z0-9-]+\))?!?: \S.*$/u;
 const fullSha = /^[0-9a-f]{40}(?:[0-9a-f]{24})?$/u;
-const plannedPrTitle = /^(?:feat|fix|docs|style|refactor|perf|test|chore)(?:\([a-z0-9-]+\))?!?: (?:\[issue-[1-9]\d*\] )?\S(?:.*\S)? - PR[1-9]\d*$/u;
+const plannedPrTitle = /^(?:feat|fix|docs|style|refactor|perf|test|chore)(?:\([a-z0-9-]+\))?!?: (?:\[issue-[1-9]\d*\] )?(\S(?:.*\S)?) - PR[1-9]\d*$/u;
 
 function git(repo, ...args) {
   const result = spawnSync('git', ['-C', repo, ...args], {
@@ -56,7 +56,9 @@ export function classifyPlannedPrTitle(title, body = '') {
   if (typeof title !== 'string' || typeof body !== 'string') {
     throw new Error('Pull request title/body unavailable');
   }
-  if (!plannedPrTitle.test(title) || /\[step-[^\]]+\]/u.test(title)) {
+  const match = plannedPrTitle.exec(title);
+  const purpose = match?.[1] ?? '';
+  if (!match || /\[step-/iu.test(title) || /\[issue-/iu.test(purpose)) {
     throw new Error('Pull request title does not follow the planned whole-PR format');
   }
   const hasBreakingMarker = /^(?:feat|fix|docs|style|refactor|perf|test|chore)(?:\([a-z0-9-]+\))?!:/u.test(title);

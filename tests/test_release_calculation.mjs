@@ -133,6 +133,11 @@ test('planned PR title validation covers issue, ad hoc, step, suffix, and whole-
   assert.equal(classifyPlannedPrTitle('fix!: replace compatibility contract - PR1'), 'major');
   for (const title of [
     'feat(ai): [issue-10][step-2] add release identity - PR1',
+    'feat(ai): [issue-10][STEP-2] add release identity - PR1',
+    'feat(ai): [STEP-2] add release identity - PR1',
+    'feat(ai): [issue-0] add release identity - PR1',
+    'feat(ai): [Issue-10] add release identity - PR1',
+    'feat(ai): explain [issue-10] compatibility - PR1',
     'feat(ai): [issue-10] add release identity',
     'feat(ai): [issue-10] add release identity - PR0',
     'feat(ai): [issue-10] add release identity - PR999 (#44)',
