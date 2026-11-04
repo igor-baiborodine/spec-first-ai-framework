@@ -63,6 +63,10 @@ use “None” or “Not applicable” with a reason where appropriate instead o
 - Examine applicable contracts, DTOs, validation/errors, persistence, compatibility, security,
   personal-data handling, operational behavior, and verification. Omit irrelevant domains with
   a brief explanation; do not turn a small task into an unrelated architecture exercise.
+- When scope includes a build, release, container image, deployment or runtime version, apply the
+  [release identity rules](../../rules/release-identity-rules.md). Capture the expected producer,
+  source/build/tag/digest mapping, propagation surfaces, placeholder failure and any owned
+  semantic/vendor exception. Do not require this evidence for unrelated work.
 
 ### Assess Acceptance Criteria and Classify Requirements
 

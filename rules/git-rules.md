@@ -4,6 +4,8 @@
 - [Git Rules](#git-rules)
   - [Branch Names](#branch-names)
   - [Commit Messages](#commit-messages)
+  - [Pull Request Titles](#pull-request-titles)
+  - [Authorized Pull Request Merge](#authorized-pull-request-merge)
   - [Commit Content and Staged Review](#commit-content-and-staged-review)
   - [Working Tree and History Safety](#working-tree-and-history-safety)
   - [Sensitive and Generated Content](#sensitive-and-generated-content)
@@ -122,6 +124,73 @@ Do not claim a hook is installed or enforcing policy without evidence.
 The bracketed subject reference provides traceability but does not declare that the commit closes
 the issue. Use a hosting-platform closing reference only when the delivered change satisfies the
 issue's completion criteria.
+
+## Pull Request Titles
+
+When authorized to create a pull request, derive its title from the complete planned pull request,
+including all of its delivery steps and commits. Use:
+
+```text
+<type>: [issue-123] <whole-PR purpose> - PR1
+<type>(<scope>): [issue-123] <whole-PR purpose> - PR2
+<type>!: [issue-123] <whole-PR purpose> - PR3
+<type>(<scope>)!: [issue-123] <whole-PR purpose> - PR4
+```
+
+For ad hoc work, omit `[issue-123] ` entirely. Use one of the supported commit types and the same
+optional scope and breaking marker rules as commit subjects. `PR<n>` is the planned sequence in the
+delivery plan, starting at `PR1` even for a single pull request; it is not the hosting platform's
+global pull request number.
+
+The purpose must summarize the outcome of the entire pull request. Do not include a `[step-*]`
+reference or summarize only the final commit. Recheck the title after pull request creation and
+before merge because an edited title changes the required squash commit message.
+
+Examples:
+
+- `chore(policy-search): [issue-235] quiesce Java consumers - PR4`
+- `feat(ai): [issue-10] standardize release identities and PR lifecycle - PR1`
+- `fix!: replace an ad hoc compatibility contract - PR1`
+
+## Authorized Pull Request Merge
+
+Merge permission is action-specific. It does not authorize a release, history rewrite, successor
+merge, branch deletion or another pull request. Before using valid merge permission on GitHub:
+
+1. Resolve the pull request's current base and head from GitHub and fetch those exact revisions.
+2. Produce a formal local review of that published base/head using the canonical
+   [code-review workflow](../skills/code-review/SKILL.md) and its required ticket artifact name.
+   Record the specification identity, coverage, validation limits and every finding with a stable
+   ID and severity.
+3. If the review contains any finding, including low/nit, stop until a maintainer records a
+   disposition for every finding. An agent fix or earlier merge permission does not clear the
+   finding. Refresh the published-revision review after relevant fixes or any base, head or
+   specification change. A missing or stale formal review blocks merge. A current review with no
+   findings uses the existing merge permission without asking for it again.
+4. Verify required checks, review gates, current title, exact reviewed base/head, and that squash
+   merge is enabled. If squash is unavailable, stop; do not substitute merge or rebase.
+   If a merge queue or branch rule can defer or alter the operation so the exact squash method and
+   message cannot be guaranteed, stop instead of enabling auto-merge or enqueueing the PR.
+
+Perform a squash merge while explicitly setting the complete commit message to the current pull
+request title as its subject and an empty body. For `gh`, use the equivalent of:
+
+```sh
+gh pr merge <number> --squash --subject "<exact-current-title>" --body ""
+```
+
+Do not accept an automatically appended pull request number, commit list or other suffix/body.
+After GitHub confirms success, read the pull request state, squash commit SHA and complete commit
+message from GitHub/the target branch. The subject must equal the title byte for byte and the body
+must be empty. Report a mismatch as a failed postcondition; do not rewrite shared history to hide it.
+
+For stacked pull requests, identify the immediate open successor from the delivery plan and actual
+base/head relationships. Only after the parent merge is confirmed, retarget that successor to
+`main`. Read back its base, then inspect its changed-file diff and check state to ensure the merged
+parent's patch is absent and the successor still represents its planned scope. A failed parent merge
+must not trigger retargeting. A failed retarget, wrong base, duplicated parent diff or unavailable
+verification leaves the handoff incomplete. When no immediate successor exists, record that fact.
+Retargeting does not authorize merging the successor or rewriting its branch.
 
 ## Commit Content and Staged Review
 

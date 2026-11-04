@@ -67,6 +67,10 @@ The change must cover:
 - **Security and configuration, when applicable**: [Specify authentication/authorization, validation, secret references, and environment-specific settings without including credentials.]
 - **Dependencies and prerequisites**: [List required tickets, services, tool versions, or infrastructure; distinguish existing dependencies from additions.]
 - **Verification commands and evidence**: [Give the narrowest relevant Make/module commands or manual steps, their working directory/environment, and expected output. Distinguish repository checks from checks requiring a live service or editor.]
+- **Release identity, when applicable**: [Define the full source revision, derived build version,
+  mutable image reference, digest-qualified image identity, mapped OCI/Kubernetes/runtime values,
+  exact producer commands, placeholder failure and scoped semantic/vendor exceptions. Remove for
+  unrelated work.]
 - **Behavior examples and checks, when applicable**: [Use the compact trace below for important success, failure, and compatibility cases. Keep expected results independent of generated output or the proposed replacement. Retain a bug reproduction or explain why it cannot be automated; for migration, identify a separately captured baseline fixture and its provenance. Explain why a manual case cannot be automated. Consider property or differential checks for money, dates, authorization, serialization, and other sensitive invariants when stronger than another example. Remove the table for routine documentation-only changes.]
 
 | Requirement ID when assessed / AC ID | Example ID and kind | Input/action and independent expected result | Boundary | Proposed test or manual scenario ID | Reproduction/baseline source, when applicable |

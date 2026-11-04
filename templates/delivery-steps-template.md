@@ -41,6 +41,8 @@ directory. When copying this template, update relative links for the destination
 - Delivery: Single PR / Multiple PRs
 - Assessment and rationale:
 - PR sequence, branch suffixes, or dependencies when multiple PRs are planned:
+- Whole-PR title(s): [Use the planned `PR<n>` sequence, summarize all assigned steps, and omit step
+  references.]
 
 ## Progress
 
@@ -66,6 +68,9 @@ delivery evidence under `<ticket-dir>/aux/` and link it from the owning step sum
 - Modules:
 - Changes:
 - Planned validation:
+- Release identity evidence, when applicable: [Producer and observation commands; full source
+  revision; derived build version; tag/reference; digest-qualified image; mapped surfaces;
+  placeholder result; scoped exception. Remove for unrelated work.]
 - Acceptance examples/check IDs: [Assign applicable specification examples to this step and name
   the expected failure for a relevant behavior mutation; note property/differential checks when useful.]
 - Artifact:

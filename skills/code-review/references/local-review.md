@@ -143,6 +143,14 @@ state alongside the committed patch. For published verification, identify the PR
 reported and fetched revisions, and explicitly exclude local work from published claims. Do not
 present a local ticket artifact as content published in the PR.
 
+When the review is the formal gate for an authorized merge, use published-PR revision mode and
+record a maintainer disposition for every finding, including low/nit findings. A disposition names
+the maintainer decision, source and time; an agent may not supply it on the maintainer's behalf.
+After relevant fixes or any base, head or specification change, produce current review evidence for
+the new exact revision. Apply the remaining merge and successor checks from
+[Authorized Pull Request Merge](../../../rules/git-rules.md#authorized-pull-request-merge) without
+performing the merge as part of this review skill.
+
 Before finishing, confirm each finding is reproducible and actionable, findings are severity-ordered,
 questions are not phrased as confirmed bugs, and claimed passes have inspected implementation or
 recorded execution evidence.

@@ -42,6 +42,17 @@ Use `templates/pr-description-template.md` and retain its three top-level sectio
    check using the validation-evidence meanings in
    `skills/ticket-post-step-workflow/SKILL.md`.
 
+When the description supports an authorized pull request creation, include the proposed title under
+Summary and derive it from [Pull Request Titles](../../rules/git-rules.md#pull-request-titles). The
+title covers the whole pull request, uses the planned `PR<n>`, and contains no step reference. The
+description skill still does not create the pull request.
+
+For an applicable build, release, image, deployment or runtime-version change, summarize the
+verified source/build/tag/digest chain, producer and observation commands, mapped surfaces,
+placeholder result and scoped exceptions from the
+[release identity rules](../../rules/release-identity-rules.md). Do not add identity boilerplate to
+unrelated descriptions.
+
 Describe only behavior, causes, endpoints, tests, commands, and results supported by the available
 ticket, repository, diff, or execution evidence. Label an inference or unknown. Plans and proposed
 commands are not results, and a CI result does not establish a local result or the reverse. Apply

@@ -8,6 +8,9 @@
 <!-- END doctoc generated TOC please keep comment here to allow auto update -->
 
 ### Summary
+Proposed title: `<type>(<optional-scope>)<optional-!>: [issue-<id>] <whole-PR purpose> - PR<n>`
+(omit the issue segment for ad hoc work)
+
 Describe the business and technical outcome of this PR in 1-3 sentences.
 
 ### Key Changes
@@ -24,6 +27,7 @@ Describe the business and technical outcome of this PR in 1-3 sentences.
 ### Testing Notes
 | Status / source | Check | Result |
 | --- | --- | --- |
+| `<Status> / <environment>` | `Release identity chain, when applicable` | `<Full revision; build version; image tag/reference and digest; mapped surfaces; producer/observation commands; placeholder result; scoped exception. Remove for unrelated work.>` |
 | `<Status> / <environment>` | `<Command or scenario and scope>` | `<Result>` |
 | `<Status> / <environment>` | `<Check>` | `<Result with relevant data, fixture, or runtime context>` |
 | `<Status> / <environment>` | `<Follow-up check>` | `<Constraint, caveat, or blocker>` |

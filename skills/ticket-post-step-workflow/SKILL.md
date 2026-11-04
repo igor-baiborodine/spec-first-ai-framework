@@ -58,6 +58,10 @@ artifact preflight before writing. Perform these actions in order:
    - keep synchronization evidence in the summary, not the authoritative ticket-content body
    - include a `Validation Evidence` section with one row for each applicable check, including
      relevant checks that were not run or are blocked; use the record format below
+   - when the step builds, publishes, deploys or verifies a release or image, record the actual
+     source/build/tag/digest chain, mapped deployment/runtime surfaces, producer and observation
+     commands, placeholder result and scoped exceptions required by the
+     [release identity rules](../../rules/release-identity-rules.md); omit this for unrelated steps
    - for behavior changes, identify the specification's AC/example/check IDs supported by each
      applicable validation row; record the independent expected result and observed result, or
      explain why the case remains unverified. Keep bug reproduction and migration baseline fixture
@@ -66,6 +70,10 @@ artifact preflight before writing. Perform these actions in order:
      unverified, even if the command's historical result is known
    - link any retained logs, JSON/XML results, state captures, bundles or other secondary evidence
      from `<ticket-dir>/aux/`; do not place those auxiliary files in the ticket root
+   - when an authorized pull request operation occurred, record its planned/current title,
+     base/head identities, formal-review and disposition state, merge method/message read-back, and
+     stacked-successor base/diff/check result as applicable; follow
+     [Git rules](../../rules/git-rules.md#authorized-pull-request-merge) and do not infer permission
 
 3. Refresh the git diff artifact:
    - Select the intended PR base from the delivery plan or actual PR target; for a stacked PR,

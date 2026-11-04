@@ -102,12 +102,14 @@ may select another copy only when its binary checksum and version match the pinn
 The `Framework Validation` GitHub Actions workflow runs on every pull request and main push
 without path filters. Its validation job uses read-only `contents` permission, checks out full
 history, provisions dependencies in explicit setup steps, runs `make check test-collect`, and
-checks all tracked Markdown files. PR title/body inputs are checked on open, synchronize, reopen,
-and edit. The title must be a Conventional Commit header; a breaking-change footer belongs in
-the proposed squash body. This PR check is preliminary: before squash merging, inspect the final
-title and body in the merge dialog and retain the footer. Release calculation checks actual main
-commits after merge. The workflow does not publish a release. Local success does not prove that a
-hosted run or repository settings enforce the same checks.
+checks all tracked Markdown files. PR titles are checked on open, synchronize, reopen, and edit.
+The title must follow the planned whole-PR syntax in
+[Git rules](rules/git-rules.md#pull-request-titles). Express a new breaking change with `!` in the
+title; the PR description can carry migration detail but is not part of the squash message. This
+check is preliminary: before squash merging, recheck the exact title and reviewed revisions.
+Release calculation checks actual main commits after merge. The workflow does not publish a
+release. Local success does not prove that a hosted run or repository settings enforce the same
+checks.
 
 `make release-test` checks the release adapter with disposable Git histories. For a local preview
 with complete history and the baseline tag available, run
@@ -124,11 +126,15 @@ exit (normally 2); direct helper CLIs use 0 success, 1 operational failure, 2 us
 
 ## Squash releases and publication
 
-Use a Conventional Commit title for the pull request and inspect the proposed squash title and
-body in the merge dialog. Keep a `BREAKING CHANGE:` footer in the final body when the change is
-breaking. The PR validation checks title/body inputs; release calculation checks the actual
-commits on main. A valid PR title does not repair a malformed squash commit. This ticket supports
-squash merges only; a maintainer must configure and verify repository merge settings separately.
+Use the whole-PR title syntax from [Git rules](rules/git-rules.md#pull-request-titles), including
+the planned `PR<n>`. Express a new breaking change with `!` in that title. For an authorized merge,
+complete the formal published-revision review and maintainer finding-disposition gate, then use
+squash only. Explicitly set the exact current title as the complete squash commit message with an
+empty body and read the result back. The release calculator retains breaking-footer support for
+historical commits, while new PR validation derives the release from the title alone. A valid PR
+title does not repair a malformed squash commit; a maintainer must configure and verify repository
+merge settings separately. Follow the stacked-successor handoff in
+[Git rules](rules/git-rules.md#authorized-pull-request-merge) after confirmed merge.
 
 The single framework version stream starts at `v1.0.0`. Across all commits since the previous
 reachable release, `fix`, `perf` and `docs` require a patch, `feat` requires a minor, and a breaking

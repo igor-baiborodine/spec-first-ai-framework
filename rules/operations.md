@@ -9,6 +9,8 @@
 
 Apply only to affected CI, deployment, infrastructure, administration or observability boundaries.
 For CI configuration, also apply the dedicated [CI workflow rules](ci-workflows.md).
+For build, release, image, deployment or runtime-version boundaries, also apply the
+[release identity rules](release-identity-rules.md).
 Read the consumer's change-to-check index and relevant runbooks before selecting commands; concrete
 cluster, namespace, registry, database, GitOps and telemetry identities remain consumer-owned.
 Classify stale source/image, DNS or network state through the owning recovery procedure before

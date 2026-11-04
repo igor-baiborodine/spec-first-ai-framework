@@ -43,6 +43,18 @@ Use before considering a ticket complete.
   scenario claimed as enforced has actual client/mode and tool/target evidence.
 - [ ] Changes to agent policy, entry points, or permission-bearing workflow instructions were
   compared with the trusted base and received independent maintainer review before acceptance.
+- [ ] The current PR title follows the whole-PR syntax, uses the planned `PR<n>`, summarizes all
+  delivered steps/commits, and contains no step reference.
+- [ ] A formal local review covers the exact published base/head and current specification. Every
+  finding at every severity has a recorded maintainer disposition; relevant fixes and revision
+  changes have current review evidence. Missing/stale review or pending disposition blocks merge.
+- [ ] Authorized GitHub merge uses squash only, explicitly sets the exact current PR title as the
+  complete commit message with an empty body, and reads back the merged state, SHA and message.
+  Disabled squash or a message mismatch is blocked/failed; no alternate merge or history rewrite
+  substitutes for the required result.
+- [ ] After confirmed merge, the immediate stacked successor is retargeted to `main` and its base,
+  diff and checks are verified, or the evidence records that no successor exists. Failed merge or
+  retarget leaves the handoff incomplete and does not authorize successor merge.
 - [ ] `<artifact-root>/` isolation is verified: the resolved ticket-content path is ignored by
   `.git/info/exclude`, and `git ls-files -- <artifact-root>/` plus
   `git diff --cached --name-only -- <artifact-root>/` report no paths.
