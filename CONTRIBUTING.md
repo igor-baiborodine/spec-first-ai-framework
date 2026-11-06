@@ -106,7 +106,8 @@ checks all tracked Markdown files. PR titles are checked on open, synchronize, r
 The title must follow the planned whole-PR syntax in
 [Git rules](rules/git-rules.md#pull-request-titles). Express a new breaking change with `!` in the
 title; the PR description can carry migration detail but is not part of the squash message. This
-check is preliminary: before squash merging, recheck the exact title and reviewed revisions.
+check is preliminary: before squash merging, recheck the exact title, global PR number, ordered
+source commit subjects and reviewed revisions.
 Release calculation checks actual main commits after merge. The workflow does not publish a
 release. Local success does not prove that a hosted run or repository settings enforce the same
 checks.
@@ -129,11 +130,14 @@ exit (normally 2); direct helper CLIs use 0 success, 1 operational failure, 2 us
 Use the whole-PR title syntax from [Git rules](rules/git-rules.md#pull-request-titles), including
 the planned `PR<n>`. Express a new breaking change with `!` in that title. For an authorized merge,
 complete the formal published-revision review and maintainer finding-disposition gate, then use
-squash only. Explicitly set the exact current title as the complete squash commit message with an
-empty body and read the result back. The release calculator retains breaking-footer support for
-historical commits, while new PR validation derives the release from the title alone. A valid PR
-title does not repair a malformed squash commit; a maintainer must configure and verify repository
-merge settings separately. Follow the stacked-successor handoff in
+squash only. Append the global pull request number to the exact current title for the final subject,
+include the ordered source commit subjects as the commit-list body, and read the complete result
+back. For example, PR #306 with planned sequence PR3 produces
+`feat(k8s): [issue-287] secure Dashboard deployment and signals - PR3 (#306)`. The release
+calculator retains breaking-footer support for historical commits, while new PR validation derives
+the release from the title alone. A valid PR title does not repair a malformed squash commit; a
+maintainer must configure and verify repository merge settings separately. Follow the
+stacked-successor handoff in
 [Git rules](rules/git-rules.md#authorized-pull-request-merge) after confirmed merge.
 
 The single framework version stream starts at `v1.0.0`. Across all commits since the previous

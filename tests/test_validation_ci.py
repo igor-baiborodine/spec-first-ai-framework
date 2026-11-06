@@ -49,9 +49,7 @@ def test_validation_workflow_runs_pinned_setup_and_required_owners():
     )
     assert "make check test-collect" in runs
     pr_validation = next(
-        step
-        for step in steps
-        if step.get("name") == "Validate pull request title and planned squash subject"
+        step for step in steps if step.get("name") == "Validate pull request title"
     )
     assert pr_validation["if"] == "github.event_name == 'pull_request'"
     assert (

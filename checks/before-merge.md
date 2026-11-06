@@ -48,10 +48,11 @@ Use before considering a ticket complete.
 - [ ] A formal local review covers the exact published base/head and current specification. Every
   finding at every severity has a recorded maintainer disposition; relevant fixes and revision
   changes have current review evidence. Missing/stale review or pending disposition blocks merge.
-- [ ] Authorized GitHub merge uses squash only, explicitly sets the exact current PR title as the
-  complete commit message with an empty body, and reads back the merged state, SHA and message.
-  Disabled squash or a message mismatch is blocked/failed; no alternate merge or history rewrite
-  substitutes for the required result.
+- [ ] Authorized GitHub merge uses squash only, appends the exact global `(#<PR number>)` to the
+  current PR title for the final subject, includes the ordered source commit subjects as the
+  commit-list body, and reads back the merged state, SHA and complete message. Disabled squash or
+  any subject/list mismatch is blocked/failed; no alternate merge or history rewrite substitutes
+  for the required result.
 - [ ] After confirmed merge, the immediate stacked successor is retargeted to `main` and its base,
   diff and checks are verified, or the evidence records that no successor exists. Failed merge or
   retarget leaves the handoff incomplete and does not authorize successor merge.

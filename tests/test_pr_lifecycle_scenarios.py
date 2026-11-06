@@ -22,7 +22,11 @@ def observed_outcome(case):
         return "ready" if all(required) and dispositions else "blocked"
 
     if case["kind"] == "merge-result":
-        exact = case["merge_succeeded"] and case["subject_matches_title"] and case["body_empty"]
+        exact = (
+            case["merge_succeeded"]
+            and case["subject_matches_title_and_pr"]
+            and case["commit_list_matches"]
+        )
         return "complete" if exact else "failed"
 
     if not case["merge_succeeded"]:
@@ -51,8 +55,8 @@ def test_fixture_covers_required_lifecycle_boundaries():
         "low-agent-fixed-without-disposition",
         "stale-review",
         "squash-disabled",
-        "message-suffix",
-        "message-body",
+        "message-pr-suffix",
+        "message-commit-list",
         "failed-merge-no-retarget",
         "retarget-failed",
         "parent-diff-duplicated",

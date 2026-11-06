@@ -147,8 +147,8 @@ staged, unstaged, untracked and generated files), present it for user review and
 commit authorization unless the user already authorized that scope at session start. Commit and
 push permissions are independent and session-scoped; neither authorizes merge, tags, branch deletion,
 history rewrite or deployment. Publication and live operations need their own direct scope.
-When merge permission is granted, follow the formal review, squash-message and stacked-successor
-contract in [Git rules](rules/git-rules.md#authorized-pull-request-merge).
+When merge permission is granted, follow the formal review, GitHub-style squash-message and
+stacked-successor contract in [Git rules](rules/git-rules.md#authorized-pull-request-merge).
 
 The selected `issue_sync` contract identifies the provider and local-authority policy. For the
 GitHub local-authority policy, use [synchronization](rules/spec-first-rules.md#github-ticket-synchronization):

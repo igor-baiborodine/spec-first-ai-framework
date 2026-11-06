@@ -41,7 +41,7 @@ jobs:
       - name: Check framework source, tooling, workflows, and tests
         run: make check test-collect
 
-      - name: Validate pull request title and planned squash subject
+      - name: Validate pull request title
         if: github.event_name == 'pull_request'
         run: node tools/release-calculation.mjs validate-pr --event-file "$GITHUB_EVENT_PATH"
 

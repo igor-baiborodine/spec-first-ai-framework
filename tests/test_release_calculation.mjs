@@ -4,7 +4,12 @@ import { mkdtempSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import test from 'node:test';
-import { calculate, classifyMessage, classifyPlannedPrTitle } from '../tools/release-calculation.mjs';
+import {
+  calculate,
+  classifyMessage,
+  classifyPlannedPrTitle,
+  validateSquashMessage,
+} from '../tools/release-calculation.mjs';
 
 function git(repo, ...args) {
   const result = spawnSync('git', ['-C', repo, ...args], { encoding: 'utf8', timeout: 10000 });
@@ -86,8 +91,14 @@ test('framework version ignores the private package version', () => fixture((rep
   assert.equal(calculate(repo, head).nextTag, 'v1.0.1');
 }));
 
-test('message and PR input validation enforce exact title-only planned squash input', () => fixture((repo) => {
-  const message = 'feat(api)!: [issue-3] add tag mode - PR1';
+test('message and PR input validation enforce GitHub-style planned squash input', () => fixture((repo) => {
+  const message = [
+    'feat(api)!: [issue-3] add tag mode - PR1 (#42)',
+    '',
+    '* feat(api): [issue-3][step-1] add tag selection',
+    '',
+    '* docs(api): [issue-3][step-2] explain tag migration',
+  ].join('\n');
   const messagePath = join(repo, 'squash.txt');
   writeFileSync(messagePath, message);
   const script = new URL('../tools/release-calculation.mjs', import.meta.url).pathname;
@@ -95,7 +106,9 @@ test('message and PR input validation enforce exact title-only planned squash in
     encoding: 'utf8', timeout: 10000,
   });
   assert.equal(valid.status, 0, valid.stderr);
-  assert.equal(JSON.parse(valid.stdout).bump, 'major');
+  assert.deepEqual(JSON.parse(valid.stdout), {
+    valid: true, bump: 'major', pullRequestNumber: 42, commitCount: 2,
+  });
   const eventPath = join(repo, 'event.json');
   writeFileSync(eventPath, JSON.stringify({ pull_request: {
     title: 'docs(ai): [issue-3] title before edit - PR2', body: 'No breaking change',
@@ -146,19 +159,56 @@ test('planned PR title validation covers issue, ad hoc, step, suffix, and whole-
   }
 });
 
-test('proposed squash validation rejects a body while historical calculation keeps footer support', () =>
+test('proposed squash validation rejects missing suffixes and malformed commit lists', () => {
+  const title = 'feat: [issue-3] add tag mode - PR1';
+  const valid = `${title} (#42)\n\n* feat: first source commit\n\n* fix: second source commit`;
+  assert.deepEqual(validateSquashMessage(valid), {
+    bump: 'minor', pullRequestNumber: 42, commitCount: 2,
+  });
+  for (const message of [
+    `${title}\n\n* feat: source commit`,
+    `${title} (#0)\n\n* feat: source commit`,
+    `${title} (#42)`,
+    `${title} (#42)\n\nfeat: source commit`,
+    `${title} (#42)\n\n* feat: source commit\n* fix: source commit`,
+  ]) {
+    assert.throws(() => validateSquashMessage(message));
+  }
+});
+
+test('proposed squash validation matches title, PR number, and ordered source commits', () => {
+  const title = 'fix(k8s): [issue-287] secure Dashboard deployment and signals - PR3';
+  const subjects = [
+    'fix(dashboard): [issue-287][step-10D] provision reader prerequisites',
+    'fix(dashboard): [issue-287][step-10D] apply canonical Secret data',
+  ];
+  const message = `${title} (#306)\n\n${subjects.map((subject) => `* ${subject}`).join('\n\n')}`;
+  const expected = { title, pullRequestNumber: 306, commitSubjects: subjects };
+  assert.deepEqual(validateSquashMessage(message, expected), {
+    bump: 'patch', pullRequestNumber: 306, commitCount: 2,
+  });
+  for (const invalidExpected of [
+    { ...expected, title: `${title} revised` },
+    { ...expected, pullRequestNumber: 307 },
+    { ...expected, commitSubjects: [...subjects].reverse() },
+    { ...expected, commitSubjects: subjects.slice(0, 1) },
+    { ...expected, commitSubjects: [...subjects, 'docs: added commit'] },
+    { ...expected, commitSubjects: [subjects[0], `${subjects[1]} revised`] },
+  ]) {
+    assert.throws(() => validateSquashMessage(message, invalidExpected));
+  }
+});
+
+test('release calculation accepts GitHub-style squash bodies and historical breaking footers', () =>
   fixture((repo) => {
-    const script = new URL('../tools/release-calculation.mjs', import.meta.url).pathname;
-    const messagePath = join(repo, 'squash.txt');
-    writeFileSync(
-      messagePath,
-      'feat: [issue-3] add tag mode - PR1\n\nBREAKING CHANGE: migrate the profile',
-    );
-    const proposed = spawnSync(
-      'node', [script, 'validate-message', '--message-file', messagePath],
-      { encoding: 'utf8', timeout: 10000 },
-    );
-    assert.equal(proposed.status, 1);
+    const squash = [
+      'feat: [issue-3] add tag mode - PR1 (#42)',
+      '',
+      '* feat: [issue-3][step-1] add tag selection',
+      '',
+      '* docs: [issue-3][step-2] explain tag selection',
+    ].join('\n');
+    assert.equal(calculate(repo, commit(repo, squash)).nextTag, 'v1.1.0');
     const head = commit(repo, 'chore: historical change\n\nBREAKING CHANGE: migrate the profile');
     assert.equal(calculate(repo, head).nextTag, 'v2.0.0');
   }));

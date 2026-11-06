@@ -11,6 +11,8 @@ const releaseTag = /^v(?:0|[1-9]\d*)\.(?:0|[1-9]\d*)\.(?:0|[1-9]\d*)$/u;
 const headerPattern = /^[a-z][a-z0-9-]*(?:\([a-z0-9-]+\))?!?: \S.*$/u;
 const fullSha = /^[0-9a-f]{40}(?:[0-9a-f]{24})?$/u;
 const plannedPrTitle = /^(?:feat|fix|docs|style|refactor|perf|test|chore)(?:\([a-z0-9-]+\))?!?: (?:\[issue-[1-9]\d*\] )?(\S(?:.*\S)?) - PR[1-9]\d*$/u;
+const squashSubject = /^(.* - PR[1-9]\d*) \(#([1-9]\d*)\)$/u;
+const commitListBody = /^\* \S(?:.*\S)?(?:\n\n\* \S(?:.*\S)?)*$/u;
 
 function git(repo, ...args) {
   const result = spawnSync('git', ['-C', repo, ...args], {
@@ -66,6 +68,50 @@ export function classifyPlannedPrTitle(title, body = '') {
     throw new Error('Breaking pull request must use ! in the title');
   }
   return classifyMessage(title);
+}
+
+export function validateSquashMessage(message, expected = {}) {
+  if (typeof message !== 'string') throw new Error('Proposed squash message unavailable');
+  const lines = message.split('\n');
+  const subject = lines.shift() ?? '';
+  if (lines.shift() !== '') {
+    throw new Error('Proposed squash message must separate subject and commit list with a blank line');
+  }
+  const subjectMatch = squashSubject.exec(subject);
+  if (!subjectMatch) {
+    throw new Error('Proposed squash subject must append the GitHub pull request number');
+  }
+  const title = subjectMatch[1];
+  const body = lines.join('\n');
+  if (!commitListBody.test(body)) {
+    throw new Error('Proposed squash body must contain a GitHub-style commit list');
+  }
+  const pullRequestNumber = Number(subjectMatch[2]);
+  const commitSubjects = body.split('\n\n').map((entry) => entry.slice(2));
+  if (expected.title !== undefined && title !== expected.title) {
+    throw new Error('Proposed squash subject does not match the current pull request title');
+  }
+  if (
+    expected.pullRequestNumber !== undefined
+    && pullRequestNumber !== expected.pullRequestNumber
+  ) {
+    throw new Error('Proposed squash subject does not match the GitHub pull request number');
+  }
+  if (
+    expected.commitSubjects !== undefined
+    && (
+      !Array.isArray(expected.commitSubjects)
+      || commitSubjects.length !== expected.commitSubjects.length
+      || commitSubjects.some((subjectItem, index) => subjectItem !== expected.commitSubjects[index])
+    )
+  ) {
+    throw new Error('Proposed squash body does not match the ordered pull request commits');
+  }
+  return {
+    bump: classifyPlannedPrTitle(title),
+    pullRequestNumber,
+    commitCount: commitSubjects.length,
+  };
 }
 
 export function calculate(repo, head) {
@@ -127,9 +173,7 @@ function main(args) {
   if (mode === 'validate-message') {
     if (args.length !== 3) throw new Error('Usage: validate-message --message-file PATH');
     const message = readFileSync(option(args, '--message-file'), 'utf8').replace(/\r?\n$/u, '');
-    if (message.includes('\n')) throw new Error('Proposed squash message body must be empty');
-    const bump = classifyPlannedPrTitle(message);
-    return { valid: true, bump };
+    return { valid: true, ...validateSquashMessage(message) };
   }
   if (mode === 'validate-pr') {
     if (args.length !== 3) throw new Error('Usage: validate-pr --event-file PATH');

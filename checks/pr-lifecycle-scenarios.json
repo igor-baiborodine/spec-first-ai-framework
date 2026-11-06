@@ -86,24 +86,24 @@
     "id": "exact-message",
     "kind": "merge-result",
     "merge_succeeded": true,
-    "subject_matches_title": true,
-    "body_empty": true,
+    "subject_matches_title_and_pr": true,
+    "commit_list_matches": true,
     "expected": "complete"
   },
   {
-    "id": "message-suffix",
+    "id": "message-pr-suffix",
     "kind": "merge-result",
     "merge_succeeded": true,
-    "subject_matches_title": false,
-    "body_empty": true,
+    "subject_matches_title_and_pr": false,
+    "commit_list_matches": true,
     "expected": "failed"
   },
   {
-    "id": "message-body",
+    "id": "message-commit-list",
     "kind": "merge-result",
     "merge_succeeded": true,
-    "subject_matches_title": true,
-    "body_empty": false,
+    "subject_matches_title_and_pr": true,
+    "commit_list_matches": false,
     "expected": "failed"
   },
   {
