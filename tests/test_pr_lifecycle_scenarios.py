@@ -29,6 +29,18 @@ def observed_outcome(case):
         )
         return "complete" if exact else "failed"
 
+    if case["kind"] == "branch-cleanup":
+        if not case["merge_succeeded"] or not case["message_verified"]:
+            return "not-started"
+        if not case["handoff_complete"]:
+            return "blocked"
+        if case["head_state"] == "absent":
+            return "complete" if case["branch_absent"] else "incomplete"
+        if case["head_state"] != "matching":
+            return "blocked"
+        complete = case["delete_succeeded"] and case["branch_absent"]
+        return "complete" if complete else "incomplete"
+
     if not case["merge_succeeded"]:
         return "not-started"
     if not case["successor_exists"]:
@@ -57,6 +69,13 @@ def test_fixture_covers_required_lifecycle_boundaries():
         "squash-disabled",
         "message-pr-suffix",
         "message-commit-list",
+        "branch-cleanup-complete",
+        "branch-cleanup-already-absent",
+        "branch-cleanup-merge-failed",
+        "branch-cleanup-handoff-incomplete",
+        "branch-cleanup-head-advanced",
+        "branch-cleanup-delete-failed",
+        "branch-cleanup-readback-failed",
         "failed-merge-no-retarget",
         "retarget-failed",
         "parent-diff-duplicated",

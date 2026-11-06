@@ -73,7 +73,9 @@ artifact preflight before writing. Perform these actions in order:
    - when an authorized pull request operation occurred, record its planned/current title,
      base/head identities, formal-review and disposition state, merge method/message read-back, and
      stacked-successor base/diff/check result as applicable. For a squash merge, record the global
-     PR-number suffix and whether the ordered commit-list body matched the source commits; follow
+     PR-number suffix and whether the ordered commit-list body matched the source commits. For
+     remote branch cleanup, record the exact head repository/ref, pre-deletion SHA or already-absent
+     state, deletion result and verified absence without deleting the local branch; follow
      [Git rules](../../rules/git-rules.md#authorized-pull-request-merge) and do not infer permission
 
 3. Refresh the git diff artifact:

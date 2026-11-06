@@ -107,6 +107,83 @@
     "expected": "failed"
   },
   {
+    "id": "branch-cleanup-complete",
+    "kind": "branch-cleanup",
+    "merge_succeeded": true,
+    "message_verified": true,
+    "handoff_complete": true,
+    "head_state": "matching",
+    "delete_succeeded": true,
+    "branch_absent": true,
+    "expected": "complete"
+  },
+  {
+    "id": "branch-cleanup-already-absent",
+    "kind": "branch-cleanup",
+    "merge_succeeded": true,
+    "message_verified": true,
+    "handoff_complete": true,
+    "head_state": "absent",
+    "delete_succeeded": false,
+    "branch_absent": true,
+    "expected": "complete"
+  },
+  {
+    "id": "branch-cleanup-merge-failed",
+    "kind": "branch-cleanup",
+    "merge_succeeded": false,
+    "message_verified": false,
+    "handoff_complete": false,
+    "head_state": "matching",
+    "delete_succeeded": false,
+    "branch_absent": false,
+    "expected": "not-started"
+  },
+  {
+    "id": "branch-cleanup-handoff-incomplete",
+    "kind": "branch-cleanup",
+    "merge_succeeded": true,
+    "message_verified": true,
+    "handoff_complete": false,
+    "head_state": "matching",
+    "delete_succeeded": false,
+    "branch_absent": false,
+    "expected": "blocked"
+  },
+  {
+    "id": "branch-cleanup-head-advanced",
+    "kind": "branch-cleanup",
+    "merge_succeeded": true,
+    "message_verified": true,
+    "handoff_complete": true,
+    "head_state": "advanced",
+    "delete_succeeded": false,
+    "branch_absent": false,
+    "expected": "blocked"
+  },
+  {
+    "id": "branch-cleanup-delete-failed",
+    "kind": "branch-cleanup",
+    "merge_succeeded": true,
+    "message_verified": true,
+    "handoff_complete": true,
+    "head_state": "matching",
+    "delete_succeeded": false,
+    "branch_absent": false,
+    "expected": "incomplete"
+  },
+  {
+    "id": "branch-cleanup-readback-failed",
+    "kind": "branch-cleanup",
+    "merge_succeeded": true,
+    "message_verified": true,
+    "handoff_complete": true,
+    "head_state": "matching",
+    "delete_succeeded": true,
+    "branch_absent": false,
+    "expected": "incomplete"
+  },
+  {
     "id": "failed-merge-no-retarget",
     "kind": "successor",
     "merge_succeeded": false,

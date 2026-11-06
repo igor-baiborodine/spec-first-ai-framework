@@ -155,7 +155,8 @@ Examples:
 ## Authorized Pull Request Merge
 
 Merge permission is action-specific. It does not authorize a release, history rewrite, successor
-merge, branch deletion or another pull request. Before using valid merge permission on GitHub:
+merge, another pull request or deletion of any branch except the merged pull request's exact remote
+source branch under the cleanup contract below. Before using valid merge permission on GitHub:
 
 1. Resolve the pull request's current base and head from GitHub and fetch those exact revisions.
 2. Produce a formal local review of that published base/head using the canonical
@@ -208,6 +209,19 @@ must not trigger retargeting. A failed retarget, wrong base, duplicated parent d
 verification leaves the handoff incomplete. When no immediate successor exists, record that fact.
 Retargeting does not authorize merging the successor or rewriting its branch.
 
+After the message postcondition and stacked-successor handoff are complete, delete the merged pull
+request's remote source branch. Re-resolve its head repository and full ref from GitHub, then read
+the remote ref immediately before deletion. If the ref is already absent, record that cleanup is
+already satisfied. If it exists, require its SHA to equal the exact reviewed and merged head SHA;
+an advanced or ambiguous ref is new or unresolved work and must not be deleted under the original
+merge permission.
+
+Delete only that verified remote ref, then read it back and require it to be absent. A denied or
+failed deletion, an unavailable read-back or a ref that remains leaves branch cleanup incomplete;
+it does not undo the successful merge or authorize deletion of another ref. Do not delete the local
+branch, the immediate successor, a default branch or any unrelated remote branch. Record the head
+repository/ref, pre-deletion SHA or already-absent state, deletion result and absence verification.
+
 ## Commit Content and Staged Review
 
 - Make each commit one coherent, reviewable change. Keep its implementation, directly associated
@@ -232,9 +246,11 @@ Retargeting does not authorize merging the successor or rewriting its branch.
 - Do not use destructive cleanup or recovery commands merely to obtain a clean working tree. Report
   conflicting changes and resolve their ownership before continuing.
 - Commit authorization does not authorize a push, merge, branch deletion, release tag, or shared
-  history rewrite. Explicit session-start permission to commit and/or push applies only to the
-  named operation and scope during that session; it does not carry into another session. Follow
-  the review and authorization conditions in [`AGENTS.md`](../consumer.md).
+  history rewrite. Merge authorization includes only the exact post-merge remote source-branch
+  cleanup defined above; it does not authorize local or unrelated branch deletion. Explicit
+  session-start permission to commit and/or push applies only to the named operation and scope
+  during that session; it does not carry into another session. Follow the review and authorization
+  conditions in [`AGENTS.md`](../consumer.md).
 - Do not rename an existing branch or rewrite commit history merely to apply this rule
   retroactively. Perform those operations only when the task explicitly requires them.
 - Naming compliance does not authorize creating a commit. Follow the review and commit

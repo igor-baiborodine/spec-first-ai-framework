@@ -56,6 +56,10 @@ Use before considering a ticket complete.
 - [ ] After confirmed merge, the immediate stacked successor is retargeted to `main` and its base,
   diff and checks are verified, or the evidence records that no successor exists. Failed merge or
   retarget leaves the handoff incomplete and does not authorize successor merge.
+- [ ] After message verification and successor handoff, the merged PR's exact remote source branch
+  is still at the reviewed head SHA, is deleted, and is verified absent; or evidence records that it
+  was already absent. An advanced/ambiguous ref or failed/unverified deletion leaves cleanup
+  incomplete and does not authorize deleting a local, successor, default or unrelated branch.
 - [ ] `<artifact-root>/` isolation is verified: the resolved ticket-content path is ignored by
   `.git/info/exclude`, and `git ls-files -- <artifact-root>/` plus
   `git diff --cached --name-only -- <artifact-root>/` report no paths.
