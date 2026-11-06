@@ -192,8 +192,9 @@ For each step:
 Authorized pull request creation or merge is a separately scoped operation. Route creation through
 the whole-PR title rule. Route merge through
 [Authorized Pull Request Merge](../../rules/git-rules.md#authorized-pull-request-merge), including
-the exact published-revision review, all-findings maintainer gate, squash-only message read-back and
-stacked-successor handoff. Do not infer these authorizations from implementation work.
+the exact published-revision review, all-findings maintainer gate, squash-only message construction
+and read-back with the global PR-number suffix and ordered commit-list body, and stacked-successor
+handoff. Do not infer these authorizations from implementation work.
 
 ### 4. Apply Post-Step Workflow
 

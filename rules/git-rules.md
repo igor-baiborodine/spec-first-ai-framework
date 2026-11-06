@@ -172,17 +172,33 @@ merge, branch deletion or another pull request. Before using valid merge permiss
    If a merge queue or branch rule can defer or alter the operation so the exact squash method and
    message cannot be guaranteed, stop instead of enabling auto-merge or enqueueing the PR.
 
-Perform a squash merge while explicitly setting the complete commit message to the current pull
-request title as its subject and an empty body. For `gh`, use the equivalent of:
+Before merging, derive the final message from the same current pull request revision used by the
+review. Construct the subject by appending the hosting platform's global pull request number to the
+exact current title:
 
-```sh
-gh pr merge <number> --squash --subject "<exact-current-title>" --body ""
+```text
+<exact-current-title> (#<pull-request-number>)
 ```
 
-Do not accept an automatically appended pull request number, commit list or other suffix/body.
-After GitHub confirms success, read the pull request state, squash commit SHA and complete commit
-message from GitHub/the target branch. The subject must equal the title byte for byte and the body
-must be empty. Report a mismatch as a failed postcondition; do not rewrite shared history to hide it.
+The title's `PR<n>` remains the planned sequence within the ticket; `#<pull-request-number>` is the
+GitHub pull request identity and provides the link back to that pull request. Construct a non-empty
+body from the current source commits in their pull request order. Use one `* <commit-subject>` entry
+per commit, separated by a blank line, and do not copy source commit bodies or trailers.
+
+Perform a squash merge while explicitly supplying both constructed values. For `gh`, use the
+equivalent of:
+
+```sh
+gh pr merge <number> --squash \
+  --subject "<exact-current-title> (#<number>)" \
+  --body "<generated-commit-list>"
+```
+
+Do not depend on repository defaults to construct either field. After GitHub confirms success, read
+the pull request state, squash commit SHA and complete commit message from GitHub/the target branch.
+The subject must equal the exact current title plus ` (#<number>)`, and the body must equal the
+generated commit list byte for byte. A missing, reordered, added or altered entry is a failed
+postcondition. Report any mismatch; do not rewrite shared history to hide it.
 
 For stacked pull requests, identify the immediate open successor from the delivery plan and actual
 base/head relationships. Only after the parent merge is confirmed, retarget that successor to

@@ -72,7 +72,8 @@ artifact preflight before writing. Perform these actions in order:
      from `<ticket-dir>/aux/`; do not place those auxiliary files in the ticket root
    - when an authorized pull request operation occurred, record its planned/current title,
      base/head identities, formal-review and disposition state, merge method/message read-back, and
-     stacked-successor base/diff/check result as applicable; follow
+     stacked-successor base/diff/check result as applicable. For a squash merge, record the global
+     PR-number suffix and whether the ordered commit-list body matched the source commits; follow
      [Git rules](../../rules/git-rules.md#authorized-pull-request-merge) and do not infer permission
 
 3. Refresh the git diff artifact:
