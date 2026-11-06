@@ -16,6 +16,10 @@ preserve capabilities. Read the affected canonical workflows/rules before changi
 Compare authority changes with their trusted source and obtain independent human maintainer review
 before acceptance. Proposed policy does not itself grant execution or publication authority.
 
+Follow [Git rules](rules/git-rules.md) for branch, commit and pull request naming. For ad hoc work
+without a numbered issue, omit both issue and step references from commit subjects; do not replace
+the issue reference with a branch-derived artifact identifier.
+
 Keep consumer topology, tool paths, operational targets, business behavior and ticket artifacts out
 of shared source. The consumer profile owns those bindings. Keep the catalog and workflow table
 consistent with actual files; no route may reference a missing component. Do not silently remove a
