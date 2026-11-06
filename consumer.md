@@ -146,9 +146,12 @@ only the requested stage. Before a commit inspect the entire proposed change (co
 staged, unstaged, untracked and generated files), present it for user review and obtain explicit
 commit authorization unless the user already authorized that scope at session start. Commit and
 push permissions are independent and session-scoped; neither authorizes merge, tags, branch deletion,
-history rewrite or deployment. Publication and live operations need their own direct scope.
+history rewrite or deployment. Authorized merge includes only deletion of the merged PR's exact
+remote source branch after its required postconditions; it does not authorize local or unrelated
+branch deletion. Publication and live operations need their own direct scope.
 When merge permission is granted, follow the formal review, GitHub-style squash-message and
-stacked-successor contract in [Git rules](rules/git-rules.md#authorized-pull-request-merge).
+stacked-successor/remote-branch cleanup contract in
+[Git rules](rules/git-rules.md#authorized-pull-request-merge).
 
 The selected `issue_sync` contract identifies the provider and local-authority policy. For the
 GitHub local-authority policy, use [synchronization](rules/spec-first-rules.md#github-ticket-synchronization):

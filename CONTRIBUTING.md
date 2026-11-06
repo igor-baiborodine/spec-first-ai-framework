@@ -138,7 +138,9 @@ calculator retains breaking-footer support for historical commits, while new PR 
 the release from the title alone. A valid PR title does not repair a malformed squash commit; a
 maintainer must configure and verify repository merge settings separately. Follow the
 stacked-successor handoff in
-[Git rules](rules/git-rules.md#authorized-pull-request-merge) after confirmed merge.
+[Git rules](rules/git-rules.md#authorized-pull-request-merge) after confirmed merge, then delete
+the exact unchanged remote source branch and verify that the ref is absent. Keep the local branch
+and any successor or unrelated remote branch.
 
 The single framework version stream starts at `v1.0.0`. Across all commits since the previous
 reachable release, `fix`, `perf` and `docs` require a patch, `feat` requires a minor, and a breaking
